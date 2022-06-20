@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'io.qameta.allure' version '2.9.6'
+}
+
+group 'io.rovner.screenshot.assert'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    testImplementation project(':screenshot-assert-core')
+    testImplementation project(':screenshot-assert-junit5')
+    testImplementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
+    testImplementation "io.qameta.allure:allure-junit5:${allureVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy tasks.allureReport
+}
+
+allure {
+    version = allureVersion
+}
+
+tasks.allureReport.doFirst {
+    file("${buildDir}/reports/allure-report").deleteDir()
+}

@@ -1,0 +1,5 @@
+rootProject.name = 'screenshot-assert'
+include 'screenshot-assert-core'
+include 'screenshot-assert-junit5'
+include 'examples'
+

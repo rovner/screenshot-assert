@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group 'io.rovner.screenshot.assert'
+version '1.0-SNAPSHOT'
+
+ext {
+    junitVersion = '5.8.2'
+    allureVersion = '2.18.1'
+    seleniumVersion = '4.2.1'
+}
+
+repositories {
+    mavenCentral()
+}
