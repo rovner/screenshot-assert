@@ -1,4 +1,4 @@
-group 'com.github.rovner.screenshot.assert'
+group 'io.github.rovner'
 version '1.0-SNAPSHOT'
 
 ext {
