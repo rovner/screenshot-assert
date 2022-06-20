@@ -1,6 +1,7 @@
 group 'io.github.rovner'
 version '1.0-SNAPSHOT'
 
+
 ext {
     junitVersion = '5.8.2'
     allureVersion = '2.18.1'
@@ -35,7 +36,55 @@ subprojects {
         archives javadocJar
     }
 
-//    signing {
-//        sign configurations.archives
-//    }
+    signing {
+        sign configurations.archives
+    }
+
+    publishing {
+        repositories {
+            maven {
+                def releasesRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username project.hasProperty('sonatype.user.name') ? project.getProperty("sonatype.user.name") : ''
+                    password project.hasProperty('sonatype.user.password') ? project.getProperty("sonatype.user.password") : ''
+                }
+            }
+        }
+        publications {
+            mavenJava(MavenPublication) {
+                groupId = project.rootProject.group
+                artifactId = project.name
+                version = project.rootProject.version
+
+                from components.java
+
+                pom {
+                    name = 'Screenshot Assert'
+                    description = 'Screenshot Assert library for broeser testing'
+                    url = 'https://github.com/rovner/screenshot-assert'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'rovner'
+                            name = 'Viacheslav Rovniakov'
+                            email = 'rovnyakov@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'git@github.com:rovner/screenshot-assert.git'
+                        developerConnection = 'git@github.com:rovner/screenshot-assert.git'
+                        url = 'https://github.com/rovner/screenshot-assert'
+                    }
+                }
+            }
+        }
+    }
 }
+

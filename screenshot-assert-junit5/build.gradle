@@ -1,3 +1,5 @@
+version project.rootProject.version
+
 dependencies {
     implementation project(":screenshot-assert-core")
     implementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
