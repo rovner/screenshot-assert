@@ -1,8 +1,4 @@
-plugins {
-    id 'java'
-}
-
-group 'io.rovner.screenshot.assert'
+group 'com.github.rovner.screenshot.assert'
 version '1.0-SNAPSHOT'
 
 ext {
@@ -11,6 +7,35 @@ ext {
     seleniumVersion = '4.2.1'
 }
 
-repositories {
-    mavenCentral()
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        archiveClassifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+//    signing {
+//        sign configurations.archives
+//    }
 }
