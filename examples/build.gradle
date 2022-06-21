@@ -6,6 +6,7 @@ dependencies {
     testImplementation project(':screenshot-assert-core')
     testImplementation project(':screenshot-assert-junit5')
     testImplementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
+    testImplementation 'io.appium:java-client:8.1.1'
     testImplementation "io.qameta.allure:allure-junit5:${allureVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"

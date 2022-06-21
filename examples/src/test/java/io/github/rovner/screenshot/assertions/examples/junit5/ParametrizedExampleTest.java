@@ -1,9 +1,10 @@
-package io.github.rovner.screenshot.assertions.examples;
+package io.github.rovner.screenshot.assertions.examples.junit5;
 
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshots;
 import io.github.rovner.screenshot.assertions.junit.ScreenshotAssertExtension;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 
 @Epic("Screenshot asserts")
-@Feature("Parametrized tests")
+@Feature("Junit5")
+@Story("Parametrized test")
 public class ParametrizedExampleTest {
     private WebDriver wd;
 

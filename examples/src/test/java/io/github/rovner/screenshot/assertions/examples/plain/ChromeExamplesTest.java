@@ -1,16 +1,18 @@
-package io.github.rovner.screenshot.assertions.examples;
+package io.github.rovner.screenshot.assertions.examples.plain;
 
 
-import io.github.rovner.screenshot.assertions.core.ignoring.Ignorings;
+import io.github.rovner.screenshot.assertions.core.ScreenshotAssert;
+import io.github.rovner.screenshot.assertions.core.ScreenshotAssert.ScreenshotAssertBuilder;
+import io.github.rovner.screenshot.assertions.core.allure.DefaultAllureListener;
+import io.github.rovner.screenshot.assertions.core.diff.DefaultImageDiffer;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshots;
-import io.github.rovner.screenshot.assertions.junit.ScreenshotAssertExtension;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
@@ -20,15 +22,18 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
+
+import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.*;
+import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfWholePage;
 
 @Epic("Screenshot asserts")
-@Feature("Chrome")
+@Feature("No framework")
+@Story("Chrome")
 public class ChromeExamplesTest {
-
     private WebDriver wd;
 
-    @RegisterExtension
-    private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd);
+    private ScreenshotAssertBuilder screenshotAssertBuilder;
     private final By textBy = By.cssSelector(".home-hero .h1-mktg");
 
     @BeforeEach
@@ -36,6 +41,12 @@ public class ChromeExamplesTest {
         wd = new RemoteWebDriver(new URL("http://localhost:9515/"), new ChromeOptions());
         wd.manage().window().setSize(new Dimension(800, 600));
         wd.get("https://github.com/");
+
+        screenshotAssertBuilder = ScreenshotAssert.builder()
+                .webDriver(wd)
+                .references(Paths.get("src/test/resources/references/io.github.rovner.screenshot.assertions.examples.plain.ChromeExamplesTest"))
+                .imageDiffer(new DefaultImageDiffer())
+                .allureListener(new DefaultAllureListener());
     }
 
     @AfterEach
@@ -46,54 +57,55 @@ public class ChromeExamplesTest {
     @Test
     @DisplayName("Full page screenshot")
     void testFullPageScreenshot() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
+        screenshotAssertBuilder
+                .screenshot(screenshotOfWholePage()).build()
                 .isEqualToReferenceId("full_page");
     }
 
     @Test
     @DisplayName("Screenshot with diff")
     void testScreenshotWithDiff() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
+        screenshotAssertBuilder.screenshot(screenshotOfWholePage()).build()
                 .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Screenshot with area ignoring")
     void testScreenshotWithAreaIgnoring() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
-                .ignoring(Ignorings.area(20, 140, 640, 120))
-                .isEqualToReferenceId("area");
+        screenshotAssertBuilder.screenshot(screenshotOfWholePage()).build()
+                .ignoring(area(20, 140, 640, 120))
+                .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Screenshot with element ignoring")
     void testScreenshotWithElementIgnoring() {
         WebElement element = wd.findElement(textBy);
-        screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
-                .ignoring(Ignorings.element(element))
-                .isEqualToReferenceId("element");
+        screenshotAssertBuilder.screenshot(screenshotOfWholePage()).build()
+                .ignoring(element(element))
+                .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Screenshot with by ignoring")
     void testScreenshotWithElementByIgnoring() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
-                .ignoring(Ignorings.elementsBy(textBy))
-                .isEqualToReferenceId("by");
+        screenshotAssertBuilder.screenshot(screenshotOfWholePage()).build()
+                .ignoring(elementsBy(textBy))
+                .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Screenshot with hash code ignoring")
     void testScreenshotWithHashCodeIgnoring() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
-                .ignoring(Ignorings.hash(169794039))
-                .isEqualToReferenceId("hash");
+        screenshotAssertBuilder.screenshot(screenshotOfWholePage()).build()
+                .ignoring(hash(169794039))
+                .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Area screenshot")
     void testAreaScreenshot() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfArea(20, 140, 640, 120))
+        screenshotAssertBuilder.screenshot(Screenshots.screenshotOfArea(20, 140, 640, 120)).build()
                 .isEqualToReferenceId("area");
     }
 
@@ -101,14 +113,14 @@ public class ChromeExamplesTest {
     @DisplayName("Element screenshot")
     void testElementScreenshot() {
         WebElement element = wd.findElement(textBy);
-        screenshotAssert.assertThat(Screenshots.screenshotOfElement(element))
+        screenshotAssertBuilder.screenshot(Screenshots.screenshotOfElement(element)).build()
                 .isEqualToReferenceId("element");
     }
 
     @Test
     @DisplayName("Element found by screenshot")
     void testElementByScreenshot() {
-        screenshotAssert.assertThat(Screenshots.screenshotOfElementFoundBy(textBy))
-                .isEqualToReferenceId("by");
+        screenshotAssertBuilder.screenshot(Screenshots.screenshotOfElementFoundBy(textBy)).build()
+                .isEqualToReferenceId("element");
     }
 }
