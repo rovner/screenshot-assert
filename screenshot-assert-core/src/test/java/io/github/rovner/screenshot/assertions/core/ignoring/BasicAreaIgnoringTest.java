@@ -1,6 +1,7 @@
 package io.github.rovner.screenshot.assertions.core.ignoring;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Rectangle;
 
@@ -16,39 +17,57 @@ public class BasicAreaIgnoringTest {
     private final Rectangle rectangle1 = new Rectangle(0, 0, 10, 10);
     private final Rectangle rectangle2 = new Rectangle(10, 10, 10, 10);
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
+    @DisplayName("Should return ignored multiple areas as list")
     void shouldReturnAreas1() {
-        Assertions.assertThat(Ignorings.areas(asList(rectangle1, rectangle2)).getIgnoredAreas())
+        BasicAreaIgnoring ignoring = areas(asList(rectangle1, rectangle2));
+        ignoring.getIgnoredAreas();//to test lazy initialization
+        assertThat(ignoring.getIgnoredAreas())
                 .isEqualTo(newHashSet(asList(rectangle1, rectangle2)));
     }
 
     @Test
+    @DisplayName("Should return ignored single area")
     void shouldReturnAreas2() {
-        Assertions.assertThat(Ignorings.area(0, 0, 10, 10).getIgnoredAreas()).
+        assertThat(area(0, 0, 10, 10).getIgnoredAreas()).
                 isEqualTo(newHashSet(singletonList(rectangle1)));
     }
 
     @Test
+    @DisplayName("Should return ignored multiple areas as varargs")
     void shouldReturnAreas3() {
-        Assertions.assertThat(Ignorings.areas(rectangle1, rectangle2).getIgnoredAreas())
+        assertThat(areas(rectangle1, rectangle2).getIgnoredAreas())
                 .isEqualTo(newHashSet(asList(rectangle1, rectangle2)));
     }
 
     @Test
+    @DisplayName("Should return correct hash code")
     void shouldReturnHashCode() {
-        Assertions.assertThat(Ignorings.area(rectangle1).hashCode())
+        assertThat(area(rectangle1).hashCode())
                 .isEqualTo(31072);
     }
 
+    @SuppressWarnings("EqualsWithItself")
     @Test
+    @DisplayName("Should return true for equal objects")
     void shouldCompareEqualObjects() {
-        Assertions.assertThat(Ignorings.area(rectangle1).equals(Ignorings.area(rectangle1)))
+        BasicAreaIgnoring ignoring = area(rectangle1);
+        assertThat(ignoring.equals(area(rectangle1)))
+                .isTrue();
+        assertThat(ignoring.equals(ignoring))
                 .isTrue();
     }
 
+    @SuppressWarnings({"ConstantConditions", "EqualsBetweenInconvertibleTypes"})
     @Test
+    @DisplayName("Should return false for non equal objects")
     void shouldCompareNonEqualObjects() {
-        Assertions.assertThat(Ignorings.area(rectangle1).equals(Ignorings.area(rectangle2)))
+        assertThat(area(rectangle1).equals(area(rectangle2)))
+                .isFalse();
+        assertThat(area(rectangle1).equals(""))
+                .isFalse();
+        assertThat(area(rectangle1).equals(null))
                 .isFalse();
     }
 }

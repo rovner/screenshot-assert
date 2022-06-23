@@ -22,9 +22,9 @@ import static java.lang.Integer.MAX_VALUE;
  * <pre>
  * - Compares byte array of buffered images.
  * - Compares images by pixels if bytes of buffered images are different.
- * - Pixels are compared by distortion in each color channel. Max distortion could be configured via {@link #withColorDistortion(int)}
- * - Maximum different pixels could be configured via {@link #withDiffSizeTrigger(int)}
- * - Diff pixel color on marked diff could be configured via {@link #withDiffColor(Color)}
+ * - Pixels are compared by distortion in each color channel. Max distortion could be configured via {@link #setColorDistortion(int)}
+ * - Maximum different pixels could be configured via {@link #setDiffSizeTrigger(int)}
+ * - Diff pixel color on marked diff could be configured via {@link #setDiffColor(Color)}
  * </pre>
  */
 public class DefaultImageDiffer implements ImageDiffer {
@@ -38,7 +38,7 @@ public class DefaultImageDiffer implements ImageDiffer {
      * @param distortion maximum color distortion.
      * @return self
      */
-    public DefaultImageDiffer withColorDistortion(int distortion) {
+    public DefaultImageDiffer setColorDistortion(int distortion) {
         this.colorDistortion = distortion;
         return this;
     }
@@ -49,7 +49,7 @@ public class DefaultImageDiffer implements ImageDiffer {
      * @param diffSizeTrigger max possible different pixels.
      * @return self
      */
-    public DefaultImageDiffer withDiffSizeTrigger(int diffSizeTrigger) {
+    public DefaultImageDiffer setDiffSizeTrigger(int diffSizeTrigger) {
         this.diffSizeTrigger = diffSizeTrigger;
         return this;
     }
@@ -60,7 +60,7 @@ public class DefaultImageDiffer implements ImageDiffer {
      * @param diffColor diff point color.
      * @return self
      */
-    public DefaultImageDiffer withDiffColor(Color diffColor) {
+    public DefaultImageDiffer setDiffColor(Color diffColor) {
         this.diffColor = diffColor;
         return this;
     }
@@ -158,24 +158,24 @@ public class DefaultImageDiffer implements ImageDiffer {
                 || Math.abs(blue1 - blue2) > colorDistortion;
     }
 
-    private static boolean areImagesEqual(BufferedImage expected, BufferedImage actual) {
-        return expected.getHeight() == actual.getHeight()
-                && expected.getWidth() == actual.getWidth()
-                && actual.getColorModel().equals(expected.getColorModel())
-                && areImagesBuffersEqual(expected.getRaster().getDataBuffer(), actual.getRaster().getDataBuffer());
+    private static boolean areImagesEqual(BufferedImage actual, BufferedImage reference) {
+        return reference.getHeight() == actual.getHeight()
+                && reference.getWidth() == actual.getWidth()
+                && actual.getColorModel().equals(reference.getColorModel())
+                && areImagesBuffersEqual(reference.getRaster().getDataBuffer(), actual.getRaster().getDataBuffer());
     }
 
-    private static boolean areImagesBuffersEqual(DataBuffer expected, DataBuffer actual) {
-        return actual.getDataType() == expected.getDataType()
-                && actual.getNumBanks() == expected.getNumBanks()
-                && actual.getSize() == expected.getSize()
-                && areImagesBytesEqual(actual, expected);
+    private static boolean areImagesBuffersEqual(DataBuffer reference, DataBuffer actual) {
+        return actual.getDataType() == reference.getDataType()
+                && actual.getNumBanks() == reference.getNumBanks()
+                && actual.getSize() == reference.getSize()
+                && areImagesBytesEqual(actual, reference);
     }
 
-    private static boolean areImagesBytesEqual(DataBuffer expected, DataBuffer actual) {
-        for (int bank = 0; bank < expected.getNumBanks(); bank++) {
-            for (int i = 0; i < expected.getSize(); i++) {
-                if (expected.getElem(bank, i) != actual.getElem(bank, i)) {
+    private static boolean areImagesBytesEqual(DataBuffer reference, DataBuffer actual) {
+        for (int bank = 0; bank < reference.getNumBanks(); bank++) {
+            for (int i = 0; i < reference.getSize(); i++) {
+                if (reference.getElem(bank, i) != actual.getElem(bank, i)) {
                     return false;
                 }
             }

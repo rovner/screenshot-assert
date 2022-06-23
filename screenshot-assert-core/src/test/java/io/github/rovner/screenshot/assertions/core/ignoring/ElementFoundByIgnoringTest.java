@@ -1,6 +1,7 @@
 package io.github.rovner.screenshot.assertions.core.ignoring;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -33,38 +34,53 @@ public class ElementFoundByIgnoringTest {
     private final By selector2 = By.cssSelector(".test2");
 
     @Test
+    @DisplayName("Should return ignored areas for elements as vararg")
     void shouldReturnArea1() {
         mockDriverResponses();
-        ElementsFoundByIgnoring ignoring = Ignorings.elementsBy(selector1, selector2);
+        ElementsFoundByIgnoring ignoring = elementsBy(selector1, selector2);
         ignoring.initWebDriver(webDriver);
+        ignoring.getIgnoredAreas();//to test lazy initialization
         assertThat(ignoring.getIgnoredAreas())
                 .isEqualTo(newHashSet(asList(rectangle1, rectangle2)));
     }
 
     @Test
+    @DisplayName("Should return ignored areas for elements as list")
     void shouldReturnArea2() {
         mockDriverResponses();
-        ElementsFoundByIgnoring ignoring = Ignorings.elementsBy(asList(selector1, selector2));
+        ElementsFoundByIgnoring ignoring = elementsBy(asList(selector1, selector2));
         ignoring.initWebDriver(webDriver);
         assertThat(ignoring.getIgnoredAreas())
                 .isEqualTo(newHashSet(asList(rectangle1, rectangle2)));
     }
 
     @Test
+    @DisplayName("Should return hash code")
     void shouldReturnHashCode() {
-        Assertions.assertThat(Ignorings.elementsBy(selector1).hashCode())
+        assertThat(elementsBy(selector1).hashCode())
                 .isEqualTo(741768738);
     }
 
+    @SuppressWarnings("EqualsWithItself")
     @Test
+    @DisplayName("Should return return true for equal objects")
     void shouldCompareEqualObjects() {
-        Assertions.assertThat(Ignorings.elementsBy(selector1).equals(Ignorings.elementsBy(selector1)))
+        ElementsFoundByIgnoring ignoring = elementsBy(selector1);
+        assertThat(ignoring.equals(elementsBy(selector1)))
+                .isTrue();
+        assertThat(ignoring.equals(ignoring))
                 .isTrue();
     }
 
+    @SuppressWarnings({"ConstantConditions", "EqualsBetweenInconvertibleTypes"})
     @Test
+    @DisplayName("Should return false for non equal objects")
     void shouldCompareNonEqualObjects() {
-        Assertions.assertThat(Ignorings.elementsBy(selector1).equals(Ignorings.elementsBy(selector2)))
+        assertThat(elementsBy(selector1).equals(elementsBy(selector2)))
+                .isFalse();
+        assertThat(elementsBy(selector1).equals(""))
+                .isFalse();
+        assertThat(elementsBy(selector1).equals(null))
                 .isFalse();
     }
 

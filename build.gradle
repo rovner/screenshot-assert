@@ -1,11 +1,12 @@
 group 'io.github.rovner'
-version '0.0.1'
+version '0.0.2-SNAPSHOT'
 
 
 ext {
     junitVersion = '5.8.2'
     allureVersion = '2.18.1'
     seleniumVersion = '4.2.1'
+    ownerVersion = '1.0.12'
 }
 
 subprojects {

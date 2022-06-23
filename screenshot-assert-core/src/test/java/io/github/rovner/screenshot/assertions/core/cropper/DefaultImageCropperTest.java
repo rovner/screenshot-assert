@@ -4,6 +4,7 @@ import io.github.rovner.screenshot.assertions.core.exceptions.InvalidCoordinates
 import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -28,7 +29,7 @@ public class DefaultImageCropperTest {
 
     private final DefaultImageCropper cropper = new DefaultImageCropper();
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{0}, {1}, {2}, {3}]")
     @CsvSource({
             "0, 0, 11, 5",
             "0, 0, 5, 11",
@@ -36,6 +37,7 @@ public class DefaultImageCropperTest {
             "11, 0, 5, 5",
             "0, 11, 5, 5"
     })
+    @DisplayName("Should throw exception when crop area is outside the image")
     void shouldThrowExceptionIfAreNotInsideImage(int x, int y, int width, int height) {
         BufferedImage image = new BufferedImage(10, 10, TYPE_INT_RGB);
 
@@ -44,13 +46,14 @@ public class DefaultImageCropperTest {
                 .hasMessage("Can not crop image because desired area is outside of image");
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "[{0}, {1}, {2}, {3}]")
     @CsvSource({
             "0, 0, 5, 5",
             "0, 5, 5, 5",
             "5, 0, 5, 5",
             "5, 5, 5, 5",
     })
+    @DisplayName("Should crop area from image")
     void shouldCropImage(int x, int y, int width, int height) throws IOException {
         BufferedImage image = generateImage(x, y, width, height);
 

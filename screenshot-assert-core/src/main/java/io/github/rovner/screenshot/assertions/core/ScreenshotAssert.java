@@ -1,25 +1,23 @@
 package io.github.rovner.screenshot.assertions.core;
 
 import io.github.rovner.screenshot.assertions.core.allure.AllureListener;
+import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import io.github.rovner.screenshot.assertions.core.diff.ImageDiff;
 import io.github.rovner.screenshot.assertions.core.diff.ImageDiffer;
 import io.github.rovner.screenshot.assertions.core.exceptions.NoReferenceException;
 import io.github.rovner.screenshot.assertions.core.exceptions.ScreenshotAssertionError;
 import io.github.rovner.screenshot.assertions.core.ignoring.Ignoring;
 import io.github.rovner.screenshot.assertions.core.ignoring.WebDriverInit;
+import io.github.rovner.screenshot.assertions.core.reference.ReferenceStorage;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
-import lombok.Builder;
+import io.github.rovner.screenshot.assertions.core.soft.SoftExceptionCollector;
+import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
-
-import static io.qameta.allure.Allure.step;
-import static java.nio.file.Files.createDirectories;
 
 /**
  * Assertion that:
@@ -29,18 +27,41 @@ import static java.nio.file.Files.createDirectories;
  * </ul>
  */
 @Slf4j
-@Builder
 public class ScreenshotAssert {
-
     private final WebDriver webDriver;
-    private final Screenshot screenshot;
-    private final Path references;
+    private final ReferenceStorage referenceStorage;
     private final ImageDiffer imageDiffer;
-    private final Set<Ignoring> ignorings = new HashSet<>();
+    private final ImageCropper imageCropper;
     private final AllureListener allureListener;
+    private final Set<Ignoring> ignorings = new HashSet<>();
+    private final boolean isSoft;
+    private final SoftExceptionCollector softExceptionCollector;
+    private final ScreenshotAssertConfig cfg;
+    private final Screenshot screenshot;
+
+    public ScreenshotAssert(WebDriver webDriver,
+                            ReferenceStorage referenceStorage,
+                            ImageDiffer imageDiffer,
+                            ImageCropper imageCropper,
+                            AllureListener allureListener,
+                            boolean isSoft,
+                            SoftExceptionCollector softExceptionCollector,
+                            ScreenshotAssertConfig cfg,
+                            Screenshot screenshot) {
+        this.webDriver = webDriver;
+        this.referenceStorage = referenceStorage;
+        this.imageDiffer = imageDiffer;
+        this.imageCropper = imageCropper;
+        this.allureListener = allureListener;
+        this.isSoft = isSoft;
+        this.softExceptionCollector = softExceptionCollector;
+        this.cfg = cfg;
+        this.screenshot = screenshot;
+    }
 
     /**
      * Ignores some diff (area, element, hash, etc.).
+     *
      * @param ignoring some difference that will be ignored.
      * @return self.
      */
@@ -51,6 +72,7 @@ public class ScreenshotAssert {
 
     /**
      * Ignores some diffs (areas, elements, hashes, etc.).
+     *
      * @param ignorings some differences that will be ignored.
      * @return self.
      */
@@ -61,6 +83,7 @@ public class ScreenshotAssert {
 
     /**
      * Ignores some diffs (areas, elements, hashes, etc.).
+     *
      * @param ignorings some differences that will be ignored.
      * @return self.
      */
@@ -70,41 +93,51 @@ public class ScreenshotAssert {
     }
 
     /**
-     * Takse screenshot and compares it to reference.
+     * Takes screenshot and compares it to reference.
+     *
      * @param id reference id
      */
     public void isEqualToReferenceId(String id) {
-        try {
-            Runnable compareOperation = () -> {
-                initWebDriver();
-                Path referencePath = references.resolve(id + ".png");
-                BufferedImage actual = screenshot.take(webDriver);
-                BufferedImage reference = readImage(referencePath)
-                        .orElseGet(() -> {
-                            allureListener.handleNoReference(actual);
-                            saveActualAsReference(referencePath, actual);
-                            throw new NoReferenceException(String.format("No reference image at path %s, " +
-                                    "current screenshot saved as reference", referencePath));
-                        });
-                Optional<ImageDiff> diff = imageDiffer.makeDiff(actual, reference, ignorings);
-                if (diff.isPresent()) {
-                    throw new ScreenshotAssertionError(String.format("Expected screenshot of %s to be equal to " +
-                            "reference %s, but is was not", screenshot.describe(), id), diff.get());
-                } else {
-                    allureListener.handleNoDiff(actual);
-                }
-            };
+        String stepName = allureListener.getCompareStepName(screenshot, id);
 
-            Optional<String> compareStepName = allureListener.getCompareStepName(screenshot, id);
-            if (compareStepName.isPresent()) {
-                step(compareStepName.get(), compareOperation::run);
-            } else {
-                compareOperation.run();
+        if (isSoft || cfg.isSoft()) {
+            try {
+                takeScreenshotAndCompare(id, stepName);
+            } catch (ScreenshotAssertionError | NoReferenceException e) {
+                softExceptionCollector.add(e);
             }
+        } else {
+            takeScreenshotAndCompare(id, stepName);
+        }
+    }
 
-        } catch (ScreenshotAssertionError error) {
-            allureListener.handleDiff(error.getDiff());
-            throw error;
+    @Step("{stepName}")
+    private void takeScreenshotAndCompare(String id, @SuppressWarnings("unused") String stepName) {
+        initWebDriver();
+        BufferedImage actual = screenshot.take(webDriver, imageCropper);
+        BufferedImage reference;
+        try {
+            reference = referenceStorage.read(id);
+        } catch (IOException e) {
+            allureListener.handleNoReference(actual);
+            if (cfg.isSaveReferenceImageWhenMissing()) {
+                referenceStorage.write(id, actual);
+            }
+            throw new NoReferenceException(String.format("No reference image %s, " +
+                    "current screenshot saved as reference", referenceStorage.describe(id)), e);
+        }
+        Optional<ImageDiff> diff = imageDiffer.makeDiff(actual, reference, ignorings);
+        if (diff.isPresent()) {
+            if (cfg.isUpdateReferenceImage()) {
+                referenceStorage.write(id, actual);
+                allureListener.handleDiffUpdated(diff.get());
+            } else {
+                allureListener.handleDiff(diff.get());
+                throw new ScreenshotAssertionError(String.format("Expected screenshot of %s to be equal to " +
+                        "reference %s, but is was not", screenshot.describe(), id));
+            }
+        } else {
+            allureListener.handleNoDiff(actual);
         }
     }
 
@@ -113,22 +146,5 @@ public class ScreenshotAssert {
                 .filter(ignoring -> ignoring instanceof WebDriverInit)
                 .map(ignoring -> (WebDriverInit) ignoring)
                 .forEach(ignoring -> ignoring.initWebDriver(webDriver));
-    }
-
-    private void saveActualAsReference(Path referencePath, BufferedImage actual) {
-        try {
-            createDirectories(referencePath.getParent());
-            ImageIO.write(actual, "png", referencePath.toFile());
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Unable to save reference file to path %s", referencePath));
-        }
-    }
-
-    private static Optional<BufferedImage> readImage(Path path) {
-        try {
-            return Optional.of(ImageIO.read(path.toFile()));
-        } catch (IOException e) {
-            return Optional.empty();
-        }
     }
 }

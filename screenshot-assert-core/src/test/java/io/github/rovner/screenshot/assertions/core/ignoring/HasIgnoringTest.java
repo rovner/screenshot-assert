@@ -2,6 +2,7 @@ package io.github.rovner.screenshot.assertions.core.ignoring;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Sets;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Rectangle;
 
@@ -13,6 +14,7 @@ import static java.util.Collections.singletonList;
 public class HasIgnoringTest {
 
     @Test
+    @DisplayName("Should return ignored hashes")
     void shouldReturnAreas() {
         Set<Integer> areas = HashIgnoring.getIgnoredHashes(asList(
                 new BasicAreaIgnoring(singletonList(new Rectangle(0, 0, 10, 10))),

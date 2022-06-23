@@ -1,5 +1,6 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
+import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -8,7 +9,7 @@ import java.awt.image.BufferedImage;
 /**
  * Takes screenshot of web element.
  */
-public final class ElementScreenshot extends CroppedScreenshot<ElementScreenshot> implements Screenshot {
+public final class ElementScreenshot implements Screenshot {
 
 
     private final WebElement element;
@@ -24,10 +25,9 @@ public final class ElementScreenshot extends CroppedScreenshot<ElementScreenshot
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver) {
+    public BufferedImage take(WebDriver webDriver, ImageCropper cropper) {
         return new AreaScreenshot(element.getRect())
-                .croppedWith(imageCropper)
-                .take(webDriver);
+                .take(webDriver, cropper);
     }
 
     @Override

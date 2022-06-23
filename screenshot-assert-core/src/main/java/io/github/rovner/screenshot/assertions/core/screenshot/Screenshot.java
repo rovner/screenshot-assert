@@ -1,5 +1,6 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
+import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import org.openqa.selenium.WebDriver;
 
 import java.awt.image.BufferedImage;
@@ -15,5 +16,5 @@ public interface Screenshot extends ScreenshotDescription {
      * @param webDriver driver.
      * @return browser screenshot.
      */
-    BufferedImage take(WebDriver webDriver);
+    BufferedImage take(WebDriver webDriver, ImageCropper cropper);
 }

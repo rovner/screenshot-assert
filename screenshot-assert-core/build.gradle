@@ -1,5 +1,7 @@
 plugins {
     id 'io.freefair.lombok' version '5.3.0'
+    id 'jacoco'
+    id 'io.qameta.allure' version '2.9.6'
 }
 
 version project.rootProject.version
@@ -7,6 +9,8 @@ version project.rootProject.version
 dependencies {
     compileOnly "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
     compileOnly "io.qameta.allure:allure-java-commons:${allureVersion}"
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation "org.aeonbits.owner:owner:${ownerVersion}"
 
     testImplementation 'org.assertj:assertj-core:3.23.1'
     testImplementation 'org.mockito:mockito-core:4.6.1'
@@ -17,4 +21,12 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+allure {
+    version = allureVersion
 }

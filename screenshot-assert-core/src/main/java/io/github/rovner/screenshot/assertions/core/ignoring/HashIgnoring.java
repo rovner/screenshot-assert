@@ -19,7 +19,7 @@ public interface HashIgnoring extends Ignoring {
     /**
      * Filter hash code ignorings and map to hash codes.
      *
-     * @param ignorings hash code ignorings.
+     * @param ignorings all ignorings.
      * @return hash codes.
      */
     static Set<Integer> getIgnoredHashes(Collection<Ignoring> ignorings) {

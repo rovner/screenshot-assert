@@ -1,5 +1,6 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
+import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebDriver;
 
@@ -8,7 +9,7 @@ import java.awt.image.BufferedImage;
 /**
  * Takes screenshot of desired area.
  */
-public class AreaScreenshot extends CroppedScreenshot<AreaScreenshot> implements Screenshot {
+public class AreaScreenshot implements Screenshot {
 
     private final Rectangle rectangle;
     private String describe;
@@ -23,9 +24,9 @@ public class AreaScreenshot extends CroppedScreenshot<AreaScreenshot> implements
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver) {
-        BufferedImage bufferedImage = new WholePageScreenshot().take(webDriver);
-        return imageCropper.crop(bufferedImage, rectangle);
+    public BufferedImage take(WebDriver webDriver, ImageCropper cropper) {
+        BufferedImage bufferedImage = new ViewportScreenshot().take(webDriver, cropper);
+        return cropper.crop(bufferedImage, rectangle);
     }
 
     @Override

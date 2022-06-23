@@ -5,6 +5,7 @@ dependencies {
     implementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
     implementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     implementation "io.qameta.allure:allure-junit5:${allureVersion}"
+    implementation "org.aeonbits.owner:owner:${ownerVersion}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"

@@ -1,6 +1,7 @@
 package io.github.rovner.screenshot.assertions.core.ignoring;
 
 import org.assertj.core.util.Sets;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Rectangle;
 
@@ -16,6 +17,7 @@ public class AreaIgnoringTest {
     private final Rectangle rect2 = new Rectangle(20, 20, 30, 40);
 
     @Test
+    @DisplayName("Should return ignored areas")
     void shouldReturnAreas() {
         Set<Rectangle> areas = AreaIgnoring.getIgnoredAreas(asList(
                 new BasicAreaIgnoring(singletonList(rect1)),
