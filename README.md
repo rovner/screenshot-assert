@@ -1,6 +1,7 @@
 ## Screenshot assert
 
 Java library for screenshot based testing with selenium and allure report
+<br>
 Benefits:
 
 - Easy screenshot comparison for page elements from the box.
