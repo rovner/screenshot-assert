@@ -15,6 +15,9 @@ public class DefaultImageCropper implements ImageCropper {
         if (!isAreaInsideImage(original, areaToCrop)) {
             throw new InvalidCoordinatesException("Can not crop image because desired area is outside of image");
         }
+        if (isEqual(original, areaToCrop)) {
+            return original;
+        }
         BufferedImage cropped = new BufferedImage(areaToCrop.width, areaToCrop.height, original.getType());
         Graphics graphics = cropped.getGraphics();
         graphics.drawImage(
@@ -25,6 +28,11 @@ public class DefaultImageCropper implements ImageCropper {
         );
         graphics.dispose();
         return cropped;
+    }
+
+    private boolean isEqual(BufferedImage image, Rectangle area) {
+        return new java.awt.Rectangle(0, 0, image.getWidth(), image.getHeight())
+                .equals(new java.awt.Rectangle(area.x, area.y, area.width, area.height));
     }
 
     private static boolean isAreaInsideImage(BufferedImage image, Rectangle area) {

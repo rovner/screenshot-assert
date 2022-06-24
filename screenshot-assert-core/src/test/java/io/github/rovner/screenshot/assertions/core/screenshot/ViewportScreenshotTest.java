@@ -1,30 +1,24 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
-import io.github.rovner.screenshot.assertions.core.ImageUtils;
 import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
-import io.github.rovner.screenshot.assertions.core.diff.DefaultImageDiffer;
-import io.github.rovner.screenshot.assertions.core.diff.ImageDiff;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Optional;
 
+import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfViewport;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.openqa.selenium.OutputType.BYTES;
 
 @ExtendWith(MockitoExtension.class)
 public class ViewportScreenshotTest {
@@ -33,48 +27,26 @@ public class ViewportScreenshotTest {
     private RemoteWebDriver webDriver;
     @Mock
     ImageCropper cropper;
+    @Mock
+    PlatformScreenshoter screenshoter;
+    @Mock
+    ImageScaler scaler;
 
     @Test
     @DisplayName("Should return screenshot of viewport")
     void shouldReturnScreenshot() {
         BufferedImage image = new BufferedImage(10, 10, TYPE_4BYTE_ABGR);
-        mockDriverResponses(webDriver, image);
-        BufferedImage screenshot = Screenshots.screenshotOfViewport().take(webDriver, cropper);
-        Optional<ImageDiff> diff = new DefaultImageDiffer().makeDiff(image, screenshot, emptyList());
-        assertThat(diff).isEmpty();
-    }
+        when(screenshoter.takeViewportScreenshot(webDriver, cropper, scaler)).thenReturn(image);
+        when(screenshoter.accept(any())).thenReturn(true);
 
-    @Test
-    @DisplayName("Should return scaled screenshot")
-    void shouldReturnRetinaScreenshot1() {
-        BufferedImage image = new BufferedImage(20, 20, TYPE_4BYTE_ABGR);
-        mockDriverResponses(webDriver, image);
-        BufferedImage screenshot = Screenshots.screenshotOfViewport().take(webDriver, cropper);
-        assertThat(screenshot.getWidth()).isEqualTo(10);
-        assertThat(screenshot.getHeight()).isEqualTo(10);
-    }
-
-    @Test
-    @DisplayName("Should return scaled screenshot in one dimension")
-    void shouldReturnRetinaScreenshot2() {
-        BufferedImage image = new BufferedImage(10, 20, TYPE_4BYTE_ABGR);
-        mockDriverResponses(webDriver, image);
-        BufferedImage screenshot = Screenshots.screenshotOfViewport().take(webDriver, cropper);
-        assertThat(screenshot.getWidth()).isEqualTo(10);
-        assertThat(screenshot.getHeight()).isEqualTo(10);
+        BufferedImage screenshot = screenshotOfViewport()
+                .take(webDriver, cropper, scaler, singletonList(screenshoter));
+        assertThat(screenshot).isEqualTo(image);
     }
 
     @Test
     @DisplayName("Should return describe")
     void shouldDescribe() {
-        Assertions.assertThat(Screenshots.screenshotOfViewport().describe()).isEqualTo("the viewport");
-    }
-
-    public static void mockDriverResponses(WebDriver webDriver, BufferedImage image) {
-        when(((TakesScreenshot) webDriver).getScreenshotAs(BYTES)).thenReturn(ImageUtils.toByteArray(image));
-        when(((JavascriptExecutor) webDriver).executeScript(anyString())).thenReturn(new HashMap<String, Long>() {{
-            put("width", 10L);
-            put("height", 10L);
-        }});
+        Assertions.assertThat(screenshotOfViewport().describe()).isEqualTo("the viewport");
     }
 }

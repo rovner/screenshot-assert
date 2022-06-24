@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver;
 
 import java.util.function.Supplier;
 
-public class ScreenshotAssertExtension extends AbstractScreenshotAssertExtension {
+public class ScreenshotAssertExtension extends AbstractScreenshotAssertExtension<ScreenshotAssertExtension> {
     public ScreenshotAssertExtension(Supplier<WebDriver> webDriverSupplier) {
         super(webDriverSupplier);
     }

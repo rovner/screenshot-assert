@@ -8,7 +8,9 @@ import io.github.rovner.screenshot.assertions.core.exceptions.NoReferenceExcepti
 import io.github.rovner.screenshot.assertions.core.exceptions.ScreenshotAssertionError;
 import io.github.rovner.screenshot.assertions.core.ignoring.Ignoring;
 import io.github.rovner.screenshot.assertions.core.ignoring.WebDriverInit;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
 import io.github.rovner.screenshot.assertions.core.reference.ReferenceStorage;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import io.github.rovner.screenshot.assertions.core.soft.SoftExceptionCollector;
 import io.qameta.allure.Step;
@@ -32,6 +34,8 @@ public class ScreenshotAssert {
     private final ReferenceStorage referenceStorage;
     private final ImageDiffer imageDiffer;
     private final ImageCropper imageCropper;
+    private final ImageScaler imageScaler;
+    private final List<PlatformScreenshoter> screenshoters;
     private final AllureListener allureListener;
     private final Set<Ignoring> ignorings = new HashSet<>();
     private final boolean isSoft;
@@ -43,6 +47,8 @@ public class ScreenshotAssert {
                             ReferenceStorage referenceStorage,
                             ImageDiffer imageDiffer,
                             ImageCropper imageCropper,
+                            ImageScaler imageScaler,
+                            List<PlatformScreenshoter> screenshoters,
                             AllureListener allureListener,
                             boolean isSoft,
                             SoftExceptionCollector softExceptionCollector,
@@ -52,6 +58,8 @@ public class ScreenshotAssert {
         this.referenceStorage = referenceStorage;
         this.imageDiffer = imageDiffer;
         this.imageCropper = imageCropper;
+        this.imageScaler = imageScaler;
+        this.screenshoters = screenshoters;
         this.allureListener = allureListener;
         this.isSoft = isSoft;
         this.softExceptionCollector = softExceptionCollector;
@@ -114,7 +122,7 @@ public class ScreenshotAssert {
     @Step("{stepName}")
     private void takeScreenshotAndCompare(String id, @SuppressWarnings("unused") String stepName) {
         initWebDriver();
-        BufferedImage actual = screenshot.take(webDriver, imageCropper);
+        BufferedImage actual = screenshot.take(webDriver, imageCropper, imageScaler, screenshoters);
         BufferedImage reference;
         try {
             reference = referenceStorage.read(id);

@@ -4,6 +4,7 @@ package io.github.rovner.screenshot.assertions.examples;
 import io.github.rovner.screenshot.assertions.core.ScreenshotAssertBuilder;
 import io.github.rovner.screenshot.assertions.core.reference.DefaultReferenceStorage;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,7 @@ import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfElementFoundBy;
 
 @Feature("No framework")
+@Story("chrome")
 public class NoFrameworkExamplesTest {
     public static final Path REFERENCES = Paths.get("src/test/resources/references/")
             .resolve(NoFrameworkExamplesTest.class.getCanonicalName());
@@ -107,7 +109,7 @@ public class NoFrameworkExamplesTest {
     @Test
     @DisplayName("Screenshot of the area")
     void testAreaScreenshot() {
-        screenshotAssert.assertThat(screenshotOfArea(20, 140, 640, 120))
+        screenshotAssert.assertThat(screenshotOfViewportArea(20, 140, 640, 120))
                 .isEqualToReferenceId("area");
     }
 

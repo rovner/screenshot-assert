@@ -8,7 +8,7 @@ import org.openqa.selenium.WebDriver;
 
 import java.util.function.Supplier;
 
-public class SoftScreenshotAssertExtension extends AbstractScreenshotAssertExtension implements AfterEachCallback {
+public class SoftScreenshotAssertExtension extends AbstractScreenshotAssertExtension<ScreenshotAssertExtension> implements AfterEachCallback {
 
     public SoftScreenshotAssertExtension(Supplier<WebDriver> webDriverSupplier) {
         super(webDriverSupplier);

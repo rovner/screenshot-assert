@@ -7,15 +7,23 @@ import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import io.github.rovner.screenshot.assertions.core.diff.DefaultImageDiffer;
 import io.github.rovner.screenshot.assertions.core.diff.ImageDiffer;
 import io.github.rovner.screenshot.assertions.core.exceptions.SoftAssertionError;
+import io.github.rovner.screenshot.assertions.core.platform.DesktopBrowserScreenshooter;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
 import io.github.rovner.screenshot.assertions.core.reference.ReferenceStorage;
+import io.github.rovner.screenshot.assertions.core.scaler.DefaultImageScaler;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import io.github.rovner.screenshot.assertions.core.soft.DefaultSoftExceptionCollector;
 import io.github.rovner.screenshot.assertions.core.soft.SoftExceptionCollector;
 import org.aeonbits.owner.ConfigFactory;
 import org.openqa.selenium.WebDriver;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import static java.time.Duration.ofMillis;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -27,6 +35,9 @@ public class ScreenshotAssertBuilder {
     private AllureListener allureListener = new DefaultAllureListener();
     private ReferenceStorage referenceStorage;
     private ImageCropper imageCropper = new DefaultImageCropper();
+    private ImageScaler imageScaler = new DefaultImageScaler();
+    private Map<String, PlatformScreenshoter> platformScreenshoters = getDefaultPlatformScreenshooters();
+
     private ScreenshotAssertConfig cfg = ConfigFactory.create(ScreenshotAssertConfig.class);
 
     private SoftExceptionCollector softExceptionCollector = new DefaultSoftExceptionCollector();
@@ -38,6 +49,7 @@ public class ScreenshotAssertBuilder {
 
     /**
      * Creates new screenshot assertion builder.
+     *
      * @return new builder
      */
     public static ScreenshotAssertBuilder builder() {
@@ -84,8 +96,24 @@ public class ScreenshotAssertBuilder {
         return this;
     }
 
+    public ScreenshotAssertBuilder setImageScaler(ImageScaler imageScaler) {
+        this.imageScaler = imageScaler;
+        return this;
+    }
+
+    public ScreenshotAssertBuilder setPlatformScreenshoters(Map<String, PlatformScreenshoter> platformScreenshoters) {
+        this.platformScreenshoters = platformScreenshoters;
+        return this;
+    }
+
+    public ScreenshotAssertBuilder addPlatformScreenshooter(String id, PlatformScreenshoter platformScreenshoter) {
+        this.platformScreenshoters.put(id, platformScreenshoter);
+        return this;
+    }
+
     /**
      * Build new screenshot assertion
+     *
      * @param screenshot to compare
      * @return new assertion
      */
@@ -97,6 +125,8 @@ public class ScreenshotAssertBuilder {
                 referenceStorage,
                 imageDiffer,
                 imageCropper,
+                imageScaler,
+                new ArrayList<>(platformScreenshoters.values()),
                 allureListener,
                 isSoft,
                 softExceptionCollector,
@@ -107,6 +137,7 @@ public class ScreenshotAssertBuilder {
 
     /**
      * Build new screenshot assertion. Syntax sugar for {@link #build(Screenshot)}
+     *
      * @param screenshot to compare
      * @return new assertion
      */
@@ -128,5 +159,14 @@ public class ScreenshotAssertBuilder {
             exceptions.forEach(error::addSuppressed);
             throw error;
         }
+    }
+
+    /**
+     * @return default platform screenshooters.
+     */
+    public static Map<String, PlatformScreenshoter> getDefaultPlatformScreenshooters() {
+        Map<String, PlatformScreenshoter> screenshoters = new HashMap<>();
+        screenshoters.put("desktop", new DesktopBrowserScreenshooter(ofMillis(0)));
+        return screenshoters;
     }
 }

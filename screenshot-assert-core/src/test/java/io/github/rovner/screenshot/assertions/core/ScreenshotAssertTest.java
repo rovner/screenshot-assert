@@ -7,7 +7,9 @@ import io.github.rovner.screenshot.assertions.core.diff.ImageDiffer;
 import io.github.rovner.screenshot.assertions.core.exceptions.NoReferenceException;
 import io.github.rovner.screenshot.assertions.core.exceptions.ScreenshotAssertionError;
 import io.github.rovner.screenshot.assertions.core.exceptions.SoftAssertionError;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
 import io.github.rovner.screenshot.assertions.core.reference.ReferenceStorage;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +21,7 @@ import org.openqa.selenium.WebDriver;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Optional;
 
 import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.elementsBy;
@@ -48,6 +51,10 @@ public class ScreenshotAssertTest {
     @Mock
     ReferenceStorage referenceStorage;
     @Mock
+    ImageScaler scaler;
+    @Mock
+    PlatformScreenshoter screenshoter;
+    @Mock
     ScreenshotAssertConfig cfg;
 
     BufferedImage image = new BufferedImage(10, 10, TYPE_4BYTE_ABGR);
@@ -62,13 +69,17 @@ public class ScreenshotAssertTest {
                 .setImageDiffer(differ)
                 .setImageCropper(cropper)
                 .setAllureListener(allureListener)
+                .setImageScaler(scaler)
+                .setPlatformScreenshoters(new HashMap<String, PlatformScreenshoter>() {{
+                    put("test", screenshoter);
+                }})
                 .setConfig(cfg);
     }
 
     @Test
     @DisplayName("Should be no difference during image comparison")
     void shouldCompareWithReference() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.empty());
 
@@ -90,7 +101,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should be no difference during image comparison for soft assertions")
     void shouldCompareWithReferenceSoft() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.empty());
 
@@ -107,7 +118,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should throw assertion error during image comparison when images are different")
     void shouldThrowExceptionOnDiff() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(screenshot.describe()).thenReturn("test-element");
         when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
@@ -125,7 +136,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should throw soft exceptions for multiple failures for single assertion")
     void shouldThrowSoftExceptionOnDiffSingle() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(screenshot.describe()).thenReturn("test-element");
         when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
@@ -148,7 +159,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should throw soft exceptions for multiple failures for all assertion")
     void shouldThrowSoftExceptionOnDiffAll() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(screenshot.describe()).thenReturn("test-element");
         when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
@@ -170,7 +181,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should not throw exception and save actual as reference during image comparison when property is true")
     void shouldSaveActualAsReference() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
         when(cfg.isUpdateReferenceImage()).thenReturn(true);
@@ -187,7 +198,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should throw exception and save actual as reference when there are no reference error during image comparison")
     void shouldWriteNewReferences() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenThrow(new IOException());
         when(referenceStorage.describe(id)).thenReturn("/some/path");
         when(cfg.isSaveReferenceImageWhenMissing()).thenReturn(true);
@@ -206,7 +217,7 @@ public class ScreenshotAssertTest {
     @Test
     @DisplayName("Should throw exception and do not save actual as reference when there are no reference error during image comparison")
     void shouldNotWriteNewReferences() throws IOException {
-        when(screenshot.take(webDriver, cropper)).thenReturn(image);
+        when(screenshot.take(webDriver, cropper, scaler, singletonList(screenshoter))).thenReturn(image);
         when(referenceStorage.read(id)).thenThrow(new IOException());
         when(referenceStorage.describe(id)).thenReturn("/some/path");
         when(cfg.isSaveReferenceImageWhenMissing()).thenReturn(false);

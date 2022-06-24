@@ -115,11 +115,24 @@ See more in [examples](examples/src/test/java/io/github/rovner/screenshot/assert
 screenshotAssert.assertThat(Screenshots.screenshotOfViewport())
     .isEqualToReferenceId("id");
 ```
-
-- Of some area by coordinates
+- Of whole page (document). Be cautious with method because it scrolls page and could change it state.  
 
 ```java
-screenshotAssert.assertThat(Screenshots.screenshotOfArea(20,140,640,120))
+screenshotAssert.assertThat(Screenshots.screenshotOfWholePage())
+    .isEqualToReferenceId("id");
+```
+
+- Of some area by coordinates in the view port. Coordinates are relative to the viewport.
+
+```java
+screenshotAssert.assertThat(Screenshots.screenshotOfViewportArea(20,140,640,120))
+    .isEqualToReferenceId("id");
+```
+
+- Of some area by coordinates in the whole page. Coordinates are relative to the document.
+
+```java
+screenshotAssert.assertThat(Screenshots.screenshotOfOageArea(20,140,640,120))
     .isEqualToReferenceId("id");
 ```
 
@@ -138,12 +151,11 @@ screenshotAssert.assertThat(Screenshots.screenshotOfElementFoundBy(cssSelector("
     .isEqualToReferenceId("id");
 ```
 
-See
-all [types](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/screenshot/Screenshots.java)
+See all [types](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/screenshot/Screenshots.java)
 
 ### Types of ignoring
 
-- Of area
+- Of viewport area
 
 ```java
 screenshotAssert.assertThat(screenshotOfViewport())
@@ -197,6 +209,37 @@ Add file named `screenshot-assert.properties` to resources dir or use `-D` prope
   <br>Default: `src/test/resources/references`
   <br>[Only for junit5] Base directory where screenshots will be stored.
 
+### Mobile browsers
+Screenshots provided by appium from mobile devices besides the viewport contain additional 
+bars(phone bar, browser bar) as well. The height and location of these bars are different on
+different browsers/devices so such configurations should be done in the target test/framework
+with knowledge of what devices will be used. Here are some examples of how it could be achieved:
+```java
+@RegisterExtension
+private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
+    .addPlatformScreenshooter("ipad-safari",
+        //ipad contains only top header which height could be different depending on browser scroll position
+        new CuttingBrowserScreenshooter(ofMillis(100), floatingHeader()) { 
+            @Override
+            public boolean accept(Capabilities capabilities) {
+                return isIpadSafari(capabilities);
+            }
+        });
+```
+```java
+@RegisterExtension
+private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
+    .addPlatformScreenshooter("iphone-safari",
+        //phone contains fixed phone bar at top and floating browser footer at the bottom
+        new CuttingBrowserScreenshooter(ofMillis(100), asList(fixedHeader(47), floatingFooter())) {
+            @Override
+            public boolean accept(Capabilities capabilities) {
+                return isIphoneSafari(capabilities);
+            }
+        });
+```
+See more in [examples](examples/src/test/java/io/github/rovner/screenshot/assertions/examples/)
+
 ### Customizing
 
 - To change how diff is represented in allure implement
@@ -227,6 +270,16 @@ Add file named `screenshot-assert.properties` to resources dir or use `-D` prope
 
 - To change how soft assertions are handled implement
   [SoftExceptionCollector](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/soft/SoftExceptionCollector.java)
+  and set it to
+  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
+
+- To change how images from browsers/devices with `dpr > 1` are scaled implement
+  [ImageScaler](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/scaler/ImageScaler.java)
+  and set it to
+  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
+
+- To change how screenshots are taken from device/browser implement
+  [PlatformScreenshoter](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/platform/PlatformScreenshoter.java)
   and set it to
   [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
 

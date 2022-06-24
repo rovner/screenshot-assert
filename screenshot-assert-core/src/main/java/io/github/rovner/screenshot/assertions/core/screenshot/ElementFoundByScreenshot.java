@@ -2,6 +2,8 @@ package io.github.rovner.screenshot.assertions.core.screenshot;
 
 import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import io.github.rovner.screenshot.assertions.core.exceptions.TooManyElementsException;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -30,7 +32,8 @@ public final class ElementFoundByScreenshot implements Screenshot {
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver, ImageCropper cropper) {
+    public BufferedImage take(WebDriver webDriver, ImageCropper cropper,
+                              ImageScaler scaler, List<PlatformScreenshoter> screenshoters) {
         List<WebElement> elements = webDriver.findElements(selector);
         if (elements.isEmpty()) {
             throw new NoSuchElementException("No element found by " + selector);
@@ -39,7 +42,7 @@ public final class ElementFoundByScreenshot implements Screenshot {
             throw new TooManyElementsException("More than one element found by " + selector);
         }
         return new ElementScreenshot(elements.get(0))
-                .take(webDriver, cropper);
+                .take(webDriver, cropper, scaler, screenshoters);
     }
 
     @Override

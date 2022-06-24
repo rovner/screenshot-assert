@@ -7,7 +7,10 @@ import io.github.rovner.screenshot.assertions.core.allure.AllureListener;
 import io.github.rovner.screenshot.assertions.core.allure.DefaultAllureListener;
 import io.github.rovner.screenshot.assertions.core.diff.DefaultImageDiffer;
 import io.github.rovner.screenshot.assertions.core.diff.ImageDiffer;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
 import io.github.rovner.screenshot.assertions.core.reference.DefaultReferenceStorage;
+import io.github.rovner.screenshot.assertions.core.scaler.DefaultImageScaler;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import org.aeonbits.owner.ConfigFactory;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -18,15 +21,17 @@ import org.openqa.selenium.WebDriver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import static io.github.rovner.screenshot.assertions.core.ScreenshotAssertBuilder.getDefaultPlatformScreenshooters;
 import static org.openqa.selenium.remote.CapabilityType.*;
 
 /**
  * Screenshot assert junit 5 extension.
  */
-public abstract class AbstractScreenshotAssertExtension implements BeforeEachCallback {
+public abstract class AbstractScreenshotAssertExtension<T extends AbstractScreenshotAssertExtension<T>> implements BeforeEachCallback {
 
     private String testClass;
     private String testMethod;
@@ -35,9 +40,11 @@ public abstract class AbstractScreenshotAssertExtension implements BeforeEachCal
     private final Supplier<WebDriver> webDriverSupplier;
     private ImageDiffer imageDiffer = new DefaultImageDiffer();
     private AllureListener allureListener = new DefaultAllureListener();
+    private ImageScaler imageScaler = new DefaultImageScaler();
+    private Map<String, PlatformScreenshoter> platformScreenshoters = getDefaultPlatformScreenshooters();
     private ScreenshotAssertBuilder screenshotAssertBuilder;
 
-    public AbstractScreenshotAssertExtension(Supplier<WebDriver> webDriverSupplier) {
+    protected AbstractScreenshotAssertExtension(Supplier<WebDriver> webDriverSupplier) {
         this.webDriverSupplier = webDriverSupplier;
     }
 
@@ -56,9 +63,10 @@ public abstract class AbstractScreenshotAssertExtension implements BeforeEachCal
      * @param imageDiffer differ to use.
      * @return self.
      */
-    public AbstractScreenshotAssertExtension setImageDiffer(ImageDiffer imageDiffer) {
+    public T setImageDiffer(ImageDiffer imageDiffer) {
         this.imageDiffer = imageDiffer;
-        return this;
+        //noinspection unchecked
+        return (T) this;
     }
 
     /**
@@ -67,9 +75,28 @@ public abstract class AbstractScreenshotAssertExtension implements BeforeEachCal
      * @param allureListener listener to use.
      * @return self.
      */
-    public AbstractScreenshotAssertExtension setAllureListener(AllureListener allureListener) {
+    public T setAllureListener(AllureListener allureListener) {
         this.allureListener = allureListener;
-        return this;
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    public T setImageScaler(ImageScaler imageScaler) {
+        this.imageScaler = imageScaler;
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    public T setPlatformScreenshoters(Map<String, PlatformScreenshoter> platformScreenshoters) {
+        this.platformScreenshoters = platformScreenshoters;
+        //noinspection unchecked
+        return (T) this;
+    }
+
+    public T addPlatformScreenshooter(String id, PlatformScreenshoter platformScreenshoter) {
+        this.platformScreenshoters.put("id", platformScreenshoter);
+        //noinspection unchecked
+        return (T) this;
     }
 
     /**
@@ -87,21 +114,21 @@ public abstract class AbstractScreenshotAssertExtension implements BeforeEachCal
                     .setWebDriver(webDriver)
                     .setReferenceStorage(new DefaultReferenceStorage(resolveReferencesPath(webDriver)))
                     .setImageDiffer(imageDiffer)
-                    .setAllureListener(allureListener);
+                    .setImageScaler(imageScaler)
+                    .setAllureListener(allureListener)
+                    .setPlatformScreenshoters(platformScreenshoters);
         }
         return screenshotAssertBuilder;
     }
 
     private Path resolveReferencesPath(WebDriver webDriver) {
         ScreenshotAssertConfig cfg = ConfigFactory.create(ScreenshotAssertConfig.class);
-        Path references = Paths.get(cfg.referencesBaseDir());
-        if (webDriver instanceof HasCapabilities) {
-            Capabilities capabilities = ((HasCapabilities) webDriver).getCapabilities();
-            references = resolvePathForCapability(references, capabilities, PLATFORM_NAME);
-            references = resolvePathForCapability(references, capabilities, BROWSER_NAME);
-            references = resolvePathForCapability(references, capabilities, BROWSER_VERSION);
-        }
-        references = references.resolve(testClass.replaceAll("\\.", "/"))
+        Capabilities capabilities = ((HasCapabilities) webDriver).getCapabilities();
+        Path references = Paths.get(cfg.referencesBaseDir())
+                .resolve(getPlatform(capabilities))
+                .resolve(capabilities.getBrowserName().toLowerCase().replaceAll(" ", "_"))
+                .resolve(capabilities.getBrowserVersion())
+                .resolve(testClass.replaceAll("\\.", "/"))
                 .resolve(testMethod);
         if (parametrizedTestId.isPresent()) {
             references = references.resolve(parametrizedTestId.get());
@@ -109,14 +136,7 @@ public abstract class AbstractScreenshotAssertExtension implements BeforeEachCal
         return references;
     }
 
-    private Path resolvePathForCapability(Path references, Capabilities capabilities, String capabilityName) {
-        try {
-            String capability = (String) capabilities.getCapability(capabilityName);
-            if (capability != null) {
-                references = references.resolve(capability);
-            }
-        } catch (Exception ignored) {
-        }
-        return references;
+    private String getPlatform(Capabilities capabilities) {
+        return capabilities.getCapability(PLATFORM_NAME).toString().toLowerCase();
     }
 }

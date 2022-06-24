@@ -1,10 +1,18 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
 import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
+import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
+import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.Math.toIntExact;
 
 /**
  * Takes screenshot of web element.
@@ -25,9 +33,39 @@ public final class ElementScreenshot implements Screenshot {
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver, ImageCropper cropper) {
-        return new AreaScreenshot(element.getRect())
-                .take(webDriver, cropper);
+    public BufferedImage take(WebDriver webDriver, ImageCropper cropper,
+                              ImageScaler scaler, List<PlatformScreenshoter> screenshoters) {
+        //noinspection unchecked
+        Map<String, Object> map = (Map<String, Object>) ((JavascriptExecutor) webDriver).executeScript("" +
+                "var element = arguments[0];\n" +
+                "var area = {};\n" +
+                "var rect = element.getBoundingClientRect();\n" +
+                "area.width = Math.round(rect.width);\n" +
+                "area.height = Math.round(rect.height);\n" +
+                "var screenX = rect.x - window.scrollX;\n" +
+                "var screenY = rect.y - window.scrollY;\n" +
+                "if (rect.x < 0 || rect.y < 0 || rect.right > window.innerWidth || rect.bottom > window.innerHeight) {\n" +
+                "    area.visible = false;\n" +
+                "    area.x = Math.round(rect.x + window.scrollX);\n" +
+                "    area.y = Math.round(rect.y + window.scrollY); \n" +
+                "} else {\n" +
+                "    area.visible = true;\n" +
+                "    area.x = Math.round(rect.x);\n" +
+                "    area.y = Math.round(rect.y);\n" +
+                "}\n" +
+                "return area;", element);
+        boolean isVisible = (boolean) map.get("visible");
+        Rectangle rectangle = new Rectangle(
+                toIntExact((Long) map.get("x")),
+                toIntExact((Long) map.get("y")),
+                toIntExact((Long) map.get("height")),
+                toIntExact((Long) map.get("width"))
+        );
+
+        Screenshot delegate = isVisible
+                ? new ViewportAreaScreenshot(rectangle)
+                : new PageAreaScreenshot(rectangle);
+        return delegate.take(webDriver, cropper, scaler, screenshoters);
     }
 
     @Override
