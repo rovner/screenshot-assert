@@ -5,6 +5,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
 import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
 
 import static java.awt.Color.RED;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(SoftAssertionsExtension.class)
@@ -66,6 +68,14 @@ public class DefaultImageCropperTest {
                 softly.assertThat(croped.getRGB(i, j)).isEqualTo(RED.getRGB());
             }
         }
+    }
+
+    @Test
+    @DisplayName("Should return original image of noting to crop")
+    void shouldReturnOriginalImage() {
+        BufferedImage image = new BufferedImage(10, 10, TYPE_INT_RGB);
+        BufferedImage crop = cropper.crop(image, new Rectangle(0, 0, 10, 10));
+        assertThat(crop).isEqualTo(image);
     }
 
     private BufferedImage generateImage(int x, int y, int width, int height) throws IOException {

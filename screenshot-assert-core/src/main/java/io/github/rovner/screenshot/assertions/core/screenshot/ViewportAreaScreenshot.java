@@ -1,18 +1,14 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
-import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
-import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
-import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
+import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import org.openqa.selenium.Rectangle;
-import org.openqa.selenium.WebDriver;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
 
 /**
  * Takes screenshot of desired area of viewport.
  */
-public class ViewportAreaScreenshot implements Screenshot {
+public final class ViewportAreaScreenshot implements Screenshot {
 
     private final Rectangle rectangle;
     private String describe;
@@ -27,10 +23,9 @@ public class ViewportAreaScreenshot implements Screenshot {
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver, ImageCropper cropper,
-                              ImageScaler scaler, List<PlatformScreenshoter> screenshooters) {
-        BufferedImage bufferedImage = new ViewportScreenshot().take(webDriver, cropper, scaler, screenshooters);
-        return cropper.crop(bufferedImage, rectangle);
+    public BufferedImage take(WebDriverWrapper webDriver, ScreenshotConfiguration configuration) {
+        BufferedImage bufferedImage = new ViewportScreenshot().take(webDriver, configuration);
+        return configuration.getImageCropper().crop(bufferedImage, rectangle);
     }
 
     @Override

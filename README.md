@@ -1,6 +1,6 @@
 ## Screenshot assert
 
-Java library for screenshot based testing with selenium and allure report
+Java library for screenshot based testing with Selenium and Allure reporting
 <br>
 Benefits:
 
@@ -8,7 +8,8 @@ Benefits:
 - Possibility to ignore different diffs by element, area or diff hash code.
 - Allure report [integration](https://github.com/allure-framework/allure2/tree/master/plugins/screen-diff-plugin) from
   the box.
-- Easy customization for any part.
+- Easy customization of any part.
+- Possibility to take whole page screenshots on mobile devices.
 
 ### Dependency
 
@@ -47,7 +48,7 @@ testImplementation 'io.github.rovner:screenshot-assert-junit5:${screenshotAssert
 ```java
 //junit5 with hard assertions
 @RegisterExtension
-ScreenshotAssertExtension screenshotAssert=new ScreenshotAssertExtension(()->webDriver);
+ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(()->webDriver);
 
 @Test
 void test(){
@@ -61,7 +62,7 @@ void test(){
 
 ```java
 @RegisterExtension
-private final SoftScreenshotAssertExtension softScreenshotAssert=new SoftScreenshotAssertExtension(()->wd);
+private final SoftScreenshotAssertExtension softScreenshotAssert = new SoftScreenshotAssertExtension(()->wd);
 
 @Test
 void test(){
@@ -76,7 +77,7 @@ void test(){
 - No framework with hard assertions
 
 ```java
-ScreenshotAssertBuilder screenshotAssert=ScreenshotAssertBuilder.builder()
+ScreenshotAssertBuilder screenshotAssert = ScreenshotAssertBuilder.builder()
     .setWebDriver(wd)
     .setReferenceStorage(new DefaultReferenceStorage(Paths.get("some/path/to/references")));
 
@@ -91,7 +92,7 @@ void test(){
 - No framework with soft assertions
 
 ```java
-ScreenshotAssertBuilder screenshotAssert=ScreenshotAssertBuilder.builder()
+ScreenshotAssertBuilder screenshotAssert = ScreenshotAssertBuilder.builder()
     .setWebDriver(wd)
     .setReferenceStorage(new DefaultReferenceStorage(Paths.get("some/path/to/references")))
     .setSoft(true);
@@ -110,7 +111,7 @@ See more in [examples](examples/src/test/java/io/github/rovner/screenshot/assert
 
 ### Types of screenshots
 
-- Of viewport (part of the page visible in window)
+- Of viewport (part of the document visible in window).
 
 ```java
 screenshotAssert.assertThat(Screenshots.screenshotOfViewport())
@@ -130,14 +131,14 @@ screenshotAssert.assertThat(Screenshots.screenshotOfViewportArea(20,140,640,120)
     .isEqualToReferenceId("id");
 ```
 
-- Of some area by coordinates in the whole page. Coordinates are relative to the document.
+- Of some area by coordinates in the whole page. Coordinates are relative to the document. Be cautious with method because it scrolls page and could change it state.
 
 ```java
 screenshotAssert.assertThat(Screenshots.screenshotOfOageArea(20,140,640,120))
     .isEqualToReferenceId("id");
 ```
 
-- Of web element
+- Of web element.
 
 ```java
 WebElement element=webDriver.findElement(cssSelector(".element"));
@@ -145,7 +146,7 @@ screenshotAssert.assertThat(Screenshots.screenshotOfElement(element))
     .isEqualToReferenceId("id");
 ```
 
-- Of web element locatable by selector
+- Of web element locatable by selector.
 
 ```java
 screenshotAssert.assertThat(Screenshots.screenshotOfElementFoundBy(cssSelector(".element")))
@@ -156,7 +157,7 @@ See all [types](screenshot-assert-core/src/main/java/io/github/rovner/screenshot
 
 ### Types of ignoring
 
-- Of viewport area
+- Of viewport area.
 
 ```java
 screenshotAssert.assertThat(screenshotOfViewport())
@@ -165,7 +166,7 @@ screenshotAssert.assertThat(screenshotOfViewport())
     .isEqualToReferenceId("id");
 ```
 
-- Of element/elements
+- Of element/elements.
 
 ```java
 WebElement element=webDriver.findElement(cssSelector(".element"));
@@ -174,7 +175,7 @@ screenshotAssert.assertThat(screenshotOfViewport())
     .isEqualToReferenceId("id");
 ```
 
-- Of elements found by selector
+- Of elements found by selector.
 
 ```java
 screenshotAssert.assertThat(screenshotOfViewport())
@@ -182,7 +183,7 @@ screenshotAssert.assertThat(screenshotOfViewport())
     .isEqualToReferenceId("id");
 ```
 
-- Of diff hash codes
+- Of diff hash codes.
 
 ```java
 screenshotAssert.assertThat(screenshotOfViewport())
@@ -212,32 +213,47 @@ Add file named `screenshot-assert.properties` to resources dir or use `-D` prope
 
 ### Mobile browsers
 Screenshots provided by appium from mobile devices besides the viewport contain additional 
-bars(phone bar, browser bar) as well. The height and location of these bars are different on
+parts(phone bar, browser bar) as well. The height and location of these parts are different on
 different browsers/devices so such configurations should be done in the target test/framework
-with knowledge of what devices will be used. Here are some examples of how it could be achieved:
+with knowledge of what devices are used. Here are some examples of how it could be achieved:
 ```java
+//iphone 13
 @RegisterExtension
 private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
-    .addPlatformScreenshooter("ipad-safari",
-        //ipad contains only top header which height could be different depending on browser scroll position
-        new CuttingBrowserScreenshooter(ofMillis(100), floatingHeader()) { 
-            @Override
-            public boolean accept(Capabilities capabilities) {
-                return isIpadSafari(capabilities);
-            }
-        });
-```
-```java
+        .scrollSleepTimeout(ofMillis(100))
+        .viewportCropper(aggregating(fixedHeaderCutting(140), floatingFooterCutting()));
+
+//ipad 9th generation
 @RegisterExtension
 private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
-    .addPlatformScreenshooter("iphone-safari",
-        //phone contains fixed phone bar at top and floating browser footer at the bottom
-        new CuttingBrowserScreenshooter(ofMillis(100), asList(fixedHeader(47), floatingFooter())) {
-            @Override
-            public boolean accept(Capabilities capabilities) {
-                return isIphoneSafari(capabilities);
-            }
-        });
+        .scrollSleepTimeout(ofMillis(100))
+        .scrollMarginPixels(16)
+        .viewportCropper(floatingHeaderCutting());
+
+//android Pixel 5
+@RegisterExtension
+private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
+        .scrollSleepTimeout(ofSeconds(1))
+        .scrollMarginPixels(8)
+        .viewportCropper(aggregating(capabilities(), floatingHeaderCutting()));
+
+//android Pixel C
+@RegisterExtension
+private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
+        .scrollSleepTimeout(ofSeconds(1))
+        .scrollMarginPixels(60)
+        .viewportCropper(aggregating(fixedFooterCutting(120), floatingHeaderCutting()));
+
+//selecting cropper in runtime
+@RegisterExtension
+private final ScreenshotAssertExtension screenshotAssert = new ScreenshotAssertExtension(() -> wd)
+        .scrollSleepTimeout(ofSeconds(500))
+        .viewportCropper(matching()
+            .match(isDesktop(), desktop())
+            .match(isIos().and(isIpad()).and(isSafari()), floatingHeaderCutting())
+            .match(isIos().and(isIphone()).and(isSafari()), aggregating(fixedHeaderCutting(140), floatingFooterCutting()))
+            .match(isAndroid(), aggregating(capabilities(), floatingHeaderCutting()))
+        );
 ```
 See more in [examples](examples/src/test/java/io/github/rovner/screenshot/assertions/examples/)
 
@@ -245,43 +261,32 @@ See more in [examples](examples/src/test/java/io/github/rovner/screenshot/assert
 
 - To change how diff is represented in allure implement
   [AllureListener](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/allure/AllureListener.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
-
+  
 - To change how screenshot is cropped implement
   [ImageCropper](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/cropper/ImageCropper.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
+  
+- To change how viewport is cropped implement
+  [ViewportCropper](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/cropper/ViewportCropper.java)
 
 - To change how screenshot is compared to reference implement
   [ImageDiffer](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/diff/ImageDiffer.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
-
+  
 - To add custom ignoring implement
   [Ignoring](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ignoring/Ignoring.java)
 
 - To change how references are stored implement
   [ReferenceStorage](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/reference/ReferenceStorage.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
-
+  
 - To add custom screenshot implement
   [Screenshot](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/screenshot/Screenshot.java)
 
 - To change how soft assertions are handled implement
   [SoftExceptionCollector](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/soft/SoftExceptionCollector.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
-
-- To change how images from browsers/devices with `dpr > 1` are scaled implement
+  
+- To change how images are scaled implement
   [ImageScaler](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/scaler/ImageScaler.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
 
-- To change how screenshots are taken from device/browser implement
-  [PlatformScreenshoter](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/platform/PlatformScreenshoter.java)
-  and set it to
-  [ScreenshotAssertBuilder](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/ScreenshotAssertBuilder.java)
+- To change how device pixel ratio is detected implement
+  [DprDetector](screenshot-assert-core/src/main/java/io/github/rovner/screenshot/assertions/core/dpr/DprDetector.java)
 
   

@@ -27,8 +27,7 @@ public class DefaultImageScalerTest {
     @Test
     @DisplayName("Should scale image")
     void shouldScale() {
-        when(webDriver.executeScript(anyString())).thenReturn(10L);
-        BufferedImage scaled = scaler.scale(image, webDriver);
+        BufferedImage scaled = scaler.scale(image, 2.0);
         BufferedImage expected = new BufferedImage(10, 15, TYPE_INT_RGB);
         assertThat(new DefaultImageDiffer().makeDiff(scaled, expected, emptyList())).isEmpty();
     }
@@ -36,8 +35,7 @@ public class DefaultImageScalerTest {
     @Test
     @DisplayName("Should not scale image")
     void shouldNotScale() {
-        when(webDriver.executeScript(anyString())).thenReturn(20L);
-        BufferedImage scaled = scaler.scale(image, webDriver);
+        BufferedImage scaled = scaler.scale(image, 1);
         assertThat(scaled).isEqualTo(image);
     }
 }

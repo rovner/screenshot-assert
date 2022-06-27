@@ -1,12 +1,9 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
-import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
+import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import io.github.rovner.screenshot.assertions.core.exceptions.TooManyElementsException;
-import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
-import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.awt.image.BufferedImage;
@@ -32,17 +29,15 @@ public final class ElementFoundByScreenshot implements Screenshot {
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver, ImageCropper cropper,
-                              ImageScaler scaler, List<PlatformScreenshoter> screenshoters) {
-        List<WebElement> elements = webDriver.findElements(selector);
+    public BufferedImage take(WebDriverWrapper webDriver, ScreenshotConfiguration configuration) {
+        List<WebElement> elements = webDriver.getWebDriver().findElements(selector);
         if (elements.isEmpty()) {
             throw new NoSuchElementException("No element found by " + selector);
         }
         if (elements.size() > 1) {
             throw new TooManyElementsException("More than one element found by " + selector);
         }
-        return new ElementScreenshot(elements.get(0))
-                .take(webDriver, cropper, scaler, screenshoters);
+        return new ElementScreenshot(elements.get(0)).take(webDriver, configuration);
     }
 
     @Override

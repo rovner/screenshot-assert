@@ -1,7 +1,5 @@
 package io.github.rovner.screenshot.assertions.core.scaler;
 
-import org.openqa.selenium.WebDriver;
-
 import java.awt.image.BufferedImage;
 
 /**
@@ -11,9 +9,9 @@ public interface ImageScaler {
     /**
      * Scales image to real size, e.g. for retina displays.
      *
-     * @param image     image to scale
-     * @param webDriver web driver
+     * @param image image to scale
+     * @param dpr   device pixel ratio
      * @return scaled image.
      */
-    BufferedImage scale(BufferedImage image, WebDriver webDriver);
+    BufferedImage scale(BufferedImage image, double dpr);
 }

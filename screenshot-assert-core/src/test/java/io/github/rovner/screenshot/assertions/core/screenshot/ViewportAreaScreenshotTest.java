@@ -1,50 +1,66 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
+import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
-import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
+import io.github.rovner.screenshot.assertions.core.cropper.ViewportCropper;
+import io.github.rovner.screenshot.assertions.core.dpr.DprDetector;
 import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openqa.selenium.Rectangle;
-import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.awt.image.BufferedImage;
 
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfViewportArea;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ViewportAreaScreenshotTest {
 
     @Mock
-    private RemoteWebDriver webDriver;
-    @Mock
-    ImageCropper cropper;
-    @Mock
-    PlatformScreenshoter screenshoter;
+    WebDriverWrapper webDriver;
     @Mock
     ImageScaler scaler;
-    private final Rectangle rectangle = new Rectangle(2, 3, 4, 6);
+    @Mock
+    ViewportCropper viewportCropper;
+    @Mock
+    ImageCropper imageCropper;
+    @Mock
+    DprDetector dprDetector;
+    ScreenshotConfiguration configuration;
+    Rectangle rectangle = new Rectangle(2, 3, 4, 6);
+
+    @BeforeEach
+    void beforeEach() {
+        configuration = ScreenshotConfiguration
+                .builder()
+                .dprDetector(dprDetector)
+                .imageCropper(imageCropper)
+                .viewportCropper(viewportCropper)
+                .imageScaler(scaler)
+                .build();
+    }
 
     @Test
-    @DisplayName("Should return screenshot of area")
+    @DisplayName("Should return screenshot of viewport area")
     void shouldReturnScreenshot() {
-        BufferedImage image1 = new BufferedImage(10, 10, TYPE_4BYTE_ABGR);
-        BufferedImage image2 = new BufferedImage(5, 5, TYPE_4BYTE_ABGR);
-        when(screenshoter.takeViewportScreenshot(webDriver, cropper, scaler)).thenReturn(image1);
-        when(screenshoter.accept(any())).thenReturn(true);
-        when(cropper.crop(image1, rectangle)).thenReturn(image2);
+        BufferedImage image = new BufferedImage(10, 10, TYPE_4BYTE_ABGR);
+        when(webDriver.takeScreenshot()).thenReturn(image);
+        when(dprDetector.detect(webDriver)).thenReturn(1.0);
+        when(viewportCropper.crop(image, imageCropper, webDriver, 1.0)).thenReturn(image);
+        when(scaler.scale(image, 1.0)).thenReturn(image);
+        when(imageCropper.crop(image, rectangle)).thenReturn(image);
+
         BufferedImage screenshot = screenshotOfViewportArea(2, 3, 6, 4)
-                .take(webDriver, cropper, scaler, singletonList(screenshoter));
-        assertThat(screenshot).isEqualTo(image2);
+                .take(webDriver, configuration);
+
+        assertThat(screenshot).isEqualTo(image);
     }
 
     @Test

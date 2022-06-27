@@ -10,6 +10,7 @@ public interface ReferenceStorage {
 
     /**
      * Reads reference to buffered image from storage.
+     *
      * @param id reference id
      * @return buffered reference image
      * @throws IOException if reference is missing
@@ -18,13 +19,15 @@ public interface ReferenceStorage {
 
     /**
      * Writes image as reference to storage.
-     * @param id reference id
+     *
+     * @param id    reference id
      * @param image to save
      */
     void write(String id, BufferedImage image);
 
     /**
      * Describes reference with id.
+     *
      * @param id reference id
      * @return description
      */

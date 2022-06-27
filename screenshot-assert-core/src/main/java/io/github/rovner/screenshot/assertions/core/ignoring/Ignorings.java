@@ -32,6 +32,7 @@ public final class Ignorings {
 
     /**
      * Creates area ignoring.
+     *
      * @param rectangle rectangle to ignore.
      * @return new area ignoring object.
      */
@@ -41,6 +42,7 @@ public final class Ignorings {
 
     /**
      * Creates areas ignoring.
+     *
      * @param rectangles rectangles to ignore
      * @return new areas ignoring object.
      */
@@ -50,6 +52,7 @@ public final class Ignorings {
 
     /**
      * Creates areas ignoring.
+     *
      * @param rectangles rectangles to ignore
      * @return new areas ignoring object.
      */
@@ -59,6 +62,7 @@ public final class Ignorings {
 
     /**
      * Creates diff hash ignoring.
+     *
      * @param diffHash diff hash to ignore.
      * @return new diff hash ignoring object.
      */
@@ -68,6 +72,7 @@ public final class Ignorings {
 
     /**
      * Creates diff hashes ignoring.
+     *
      * @param diffHashes diff hashes to ignore.
      * @return new diff hashes ignoring object.
      */
@@ -77,6 +82,7 @@ public final class Ignorings {
 
     /**
      * Creates diff hashes ignoring.
+     *
      * @param diffHashes diff hashes to ignore.
      * @return new diff hashes ignoring object.
      */
@@ -86,6 +92,7 @@ public final class Ignorings {
 
     /**
      * Creates element ignoring.
+     *
      * @param element element to ignore.
      * @return new element ignoring.
      */
@@ -95,6 +102,7 @@ public final class Ignorings {
 
     /**
      * Creates elements ignoring.
+     *
      * @param elements elements to ignore.
      * @return new elements ignoring.
      */
@@ -104,6 +112,7 @@ public final class Ignorings {
 
     /**
      * Creates elements ignoring.
+     *
      * @param elements elements to ignore.
      * @return new elements ignoring.
      */
@@ -113,6 +122,7 @@ public final class Ignorings {
 
     /**
      * Creates elements found  by selector ignoring.
+     *
      * @param selectors selectors to ignore.
      * @return new elements ignoring.
      */
@@ -122,6 +132,7 @@ public final class Ignorings {
 
     /**
      * Creates elements found  by selector ignoring.
+     *
      * @param selectors selectors to ignore.
      * @return new elements ignoring.
      */

@@ -1,8 +1,11 @@
 package io.github.rovner.screenshot.assertions.examples;
 
 
-import io.github.rovner.screenshot.assertions.core.ScreenshotAssertBuilder;
+import io.github.rovner.screenshot.assertions.core.ScreenshotAssertionConfiguration;
+import io.github.rovner.screenshot.assertions.core.ScreenshotAssertions;
 import io.github.rovner.screenshot.assertions.core.reference.DefaultReferenceStorage;
+import io.github.rovner.screenshot.assertions.examples.utils.BaseTest;
+import io.github.rovner.screenshot.assertions.examples.utils.Drivers;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import org.junit.jupiter.api.AfterEach;
@@ -25,58 +28,53 @@ import java.nio.file.Paths;
 
 import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.*;
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.*;
-import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfElementFoundBy;
+import static io.github.rovner.screenshot.assertions.examples.utils.Drivers.chrome;
 
 @Feature("No framework")
 @Story("chrome")
-public class NoFrameworkExamplesTest {
+public class NoFrameworkExamplesTest extends BaseTest {
     public static final Path REFERENCES = Paths.get("src/test/resources/references/")
             .resolve(NoFrameworkExamplesTest.class.getCanonicalName());
-    private WebDriver wd;
 
-    private ScreenshotAssertBuilder screenshotAssert;
-    private ScreenshotAssertBuilder softScreenshotAssert;
-    private final By textBy = By.cssSelector(".home-hero .h1-mktg");
+    private ScreenshotAssertions screenshotAssertions;
+    private ScreenshotAssertions softScreenshotAssertions;
 
     @BeforeEach
     void beforeEach() throws IOException {
-        wd = new RemoteWebDriver(new URL("http://localhost:9515/"), new ChromeOptions());
-        wd.manage().window().setSize(new Dimension(800, 600));
-        wd.get("https://github.com/");
+        wd = chrome();
 
-        screenshotAssert = ScreenshotAssertBuilder.builder()
-                .setWebDriver(wd)
-                .setReferenceStorage(new DefaultReferenceStorage(REFERENCES));
+        DefaultReferenceStorage storage = new DefaultReferenceStorage(REFERENCES);
+        screenshotAssertions = new ScreenshotAssertions(wd, ScreenshotAssertionConfiguration.builder()
+                .referenceStorage(storage)
+                .build());
 
-        softScreenshotAssert = ScreenshotAssertBuilder.builder()
-                .setWebDriver(wd)
-                .setReferenceStorage(new DefaultReferenceStorage(REFERENCES))
-                .setSoft(true);
-    }
-
-    @AfterEach
-    void afterEach() {
-        wd.quit();
+        softScreenshotAssertions = new ScreenshotAssertions(wd, ScreenshotAssertionConfiguration.builder()
+                .referenceStorage(storage)
+                .isSoft(true)
+                .build());
     }
 
     @Test
     @DisplayName("Screenshot of the viewport")
     void testFullPageScreenshot() {
-        screenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewport())
                 .isEqualToReferenceId("full_page");
     }
 
     @Test
     @DisplayName("Screenshot with diff (should be failed)")
     void testScreenshotWithDiff() {
-        screenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewport())
                 .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Screenshot with ignored area")
     void testScreenshotWithAreaIgnoring() {
-        screenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewport())
                 .ignoring(area(20, 140, 640, 120))
                 .isEqualToReferenceId("diff");
     }
@@ -84,8 +82,9 @@ public class NoFrameworkExamplesTest {
     @Test
     @DisplayName("Screenshot with ignored web element")
     void testScreenshotWithElementIgnoring() {
-        WebElement element = wd.findElement(textBy);
-        screenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        WebElement element = wd.findElement(textSelector);
+        screenshotAssertions.assertThat(screenshotOfViewport())
                 .ignoring(element(element))
                 .isEqualToReferenceId("diff");
     }
@@ -93,15 +92,17 @@ public class NoFrameworkExamplesTest {
     @Test
     @DisplayName("Screenshot with ignored selector")
     void testScreenshotWithElementByIgnoring() {
-        screenshotAssert.assertThat(screenshotOfViewport())
-                .ignoring(elementsBy(textBy))
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewport())
+                .ignoring(elementsBy(textSelector))
                 .isEqualToReferenceId("diff");
     }
 
     @Test
     @DisplayName("Screenshot with ignored diff hash code")
     void testScreenshotWithHashCodeIgnoring() {
-        screenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewport())
                 .ignoring(hash(169794039))
                 .isEqualToReferenceId("diff");
     }
@@ -109,22 +110,25 @@ public class NoFrameworkExamplesTest {
     @Test
     @DisplayName("Screenshot of the area")
     void testAreaScreenshot() {
-        screenshotAssert.assertThat(screenshotOfViewportArea(20, 140, 640, 120))
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewportArea(20, 140, 640, 120))
                 .isEqualToReferenceId("area");
     }
 
     @Test
     @DisplayName("Screenshot of the web element")
     void testElementScreenshot() {
-        WebElement element = wd.findElement(textBy);
-        screenshotAssert.assertThat(screenshotOfElement(element))
+        goToGithubMainPage();
+        WebElement element = wd.findElement(textSelector);
+        screenshotAssertions.assertThat(screenshotOfElement(element))
                 .isEqualToReferenceId("element");
     }
 
     @Test
     @DisplayName("Screenshot of the selector")
     void testElementByScreenshot() {
-        screenshotAssert.assertThat(screenshotOfElementFoundBy(textBy))
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfElementFoundBy(textSelector))
                 .isEqualToReferenceId("element");
     }
 
@@ -132,17 +136,19 @@ public class NoFrameworkExamplesTest {
     @ValueSource(ints = {1, 2})
     @DisplayName("Screenshot for parametrized tests")
     void testParametrized(int id) {
-        screenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        screenshotAssertions.assertThat(screenshotOfViewport())
                 .isEqualToReferenceId("full_page_" + id);
     }
 
     @Test
     @DisplayName("Screenshots with soft assertions (should be failed)")
     void testScreenshotSoftAssertions() {
-        softScreenshotAssert.assertThat(screenshotOfViewport())
+        goToGithubMainPage();
+        softScreenshotAssertions.assertThat(screenshotOfViewport())
                 .isEqualToReferenceId("diff");
-        softScreenshotAssert.assertThat(screenshotOfElementFoundBy(textBy))
+        softScreenshotAssertions.assertThat(screenshotOfElementFoundBy(textSelector))
                 .isEqualToReferenceId("element_diff");
-        softScreenshotAssert.assertAll();
+        softScreenshotAssertions.assertAll();
     }
 }

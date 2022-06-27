@@ -14,6 +14,7 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of element found by selector.
+     *
      * @param selector of web element to screenshot.
      * @return screenshot object.
      */
@@ -23,6 +24,7 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of viewport area.
+     *
      * @param rectangle area to screenshot.
      * @return screenshot object.
      */
@@ -32,6 +34,7 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of whole page area.
+     *
      * @param rectangle area to screenshot.
      * @return screenshot object.
      */
@@ -41,9 +44,10 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of viewport area.
-     * @param x x coordinate of area to ignore relative to viewport.
-     * @param y y coordinate of area to ignore relative to viewport.
-     * @param width width of area to ignore.
+     *
+     * @param x      x coordinate of area to ignore relative to viewport.
+     * @param y      y coordinate of area to ignore relative to viewport.
+     * @param width  width of area to ignore.
      * @param height height of area to ignore.
      * @return screenshot object.
      */
@@ -53,9 +57,10 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of viewport area.
-     * @param x x coordinate of area to ignore relative to page.
-     * @param y y coordinate of area to ignore relative to page.
-     * @param width width of area to ignore.
+     *
+     * @param x      x coordinate of area to ignore relative to page.
+     * @param y      y coordinate of area to ignore relative to page.
+     * @param width  width of area to ignore.
      * @param height height of area to ignore.
      * @return screenshot object.
      */
@@ -65,6 +70,7 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of element.
+     *
      * @param element web element to screenshot.
      * @return screenshot object.
      */
@@ -74,6 +80,7 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of viewport
+     *
      * @return screenshot object.
      */
     public static ViewportScreenshot screenshotOfViewport() {
@@ -82,6 +89,7 @@ public final class Screenshots {
 
     /**
      * Creates screenshot of whole page
+     *
      * @return screenshot object.
      */
     public static PageScreenshot screenshotOfWholePage() {

@@ -1,15 +1,10 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
-import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
-import io.github.rovner.screenshot.assertions.core.platform.PlatformScreenshoter;
-import io.github.rovner.screenshot.assertions.core.scaler.ImageScaler;
-import org.openqa.selenium.JavascriptExecutor;
+import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import org.openqa.selenium.Rectangle;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.Math.toIntExact;
@@ -33,10 +28,8 @@ public final class ElementScreenshot implements Screenshot {
     }
 
     @Override
-    public BufferedImage take(WebDriver webDriver, ImageCropper cropper,
-                              ImageScaler scaler, List<PlatformScreenshoter> screenshoters) {
-        //noinspection unchecked
-        Map<String, Object> map = (Map<String, Object>) ((JavascriptExecutor) webDriver).executeScript("" +
+    public BufferedImage take(WebDriverWrapper webDriver, ScreenshotConfiguration configuration) {
+        Map<String, Object> map = webDriver.executeScript("" +
                 "var element = arguments[0];\n" +
                 "var area = {};\n" +
                 "var rect = element.getBoundingClientRect();\n" +
@@ -65,7 +58,7 @@ public final class ElementScreenshot implements Screenshot {
         Screenshot delegate = isVisible
                 ? new ViewportAreaScreenshot(rectangle)
                 : new PageAreaScreenshot(rectangle);
-        return delegate.take(webDriver, cropper, scaler, screenshoters);
+        return delegate.take(webDriver, configuration);
     }
 
     @Override
