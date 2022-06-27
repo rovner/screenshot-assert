@@ -6,6 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -14,10 +15,11 @@ import java.util.List;
  * Throws {@link NoSuchElementException} if no element is found by selector.
  * Throws {@link TooManyElementsException} if more than one element found by selector.
  */
-public final class ElementFoundByScreenshot implements Screenshot {
+public final class ElementFoundByScreenshot implements KeepContextScreenshot {
 
     private final By selector;
     private String describe;
+    private KeepContextScreenshot delegate;
 
     ElementFoundByScreenshot(By selector) {
         this.selector = selector;
@@ -37,7 +39,8 @@ public final class ElementFoundByScreenshot implements Screenshot {
         if (elements.size() > 1) {
             throw new TooManyElementsException("More than one element found by " + selector);
         }
-        return new ElementScreenshot(elements.get(0)).take(webDriver, configuration);
+        delegate = new ElementScreenshot(elements.get(0));
+        return delegate.take(webDriver, configuration);
     }
 
     @Override
@@ -46,5 +49,10 @@ public final class ElementFoundByScreenshot implements Screenshot {
         return describe == null
                 ? elementDescribe
                 : String.format("%s (%s)", describe, elementDescribe);
+    }
+
+    @Override
+    public BufferedImage getContextScreenshot(Color color) {
+        return delegate.getContextScreenshot(color);
     }
 }

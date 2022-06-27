@@ -1,6 +1,9 @@
 package io.github.rovner.screenshot.assertions.core;
 
+import org.openqa.selenium.Rectangle;
+
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,5 +55,20 @@ public class ImageUtils {
      */
     public static String toBase64(BufferedImage image) {
         return BASE64.encodeToString(toByteArray(image));
+    }
+
+    public static BufferedImage drawRectangle(BufferedImage image, Rectangle rectangle, Color rectangleColor) {
+        Graphics2D graph = image.createGraphics();
+        graph.setColor(rectangleColor);
+        int left = rectangle.getX();
+        int top = rectangle.getY();
+        int right = rectangle.getX() + rectangle.getWidth();
+        int bottom = rectangle.getY() + rectangle.getHeight();
+        graph.drawLine(left, top, right, top);
+        graph.drawLine(left, top, left, bottom);
+        graph.drawLine(left, bottom, right, bottom);
+        graph.drawLine(right, top, right, bottom);
+        graph.dispose();
+        return image;
     }
 }

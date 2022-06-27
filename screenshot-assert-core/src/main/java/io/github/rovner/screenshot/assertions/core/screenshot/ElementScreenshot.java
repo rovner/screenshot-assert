@@ -4,6 +4,7 @@ import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Map;
 
@@ -12,11 +13,11 @@ import static java.lang.Math.toIntExact;
 /**
  * Takes screenshot of web element.
  */
-public final class ElementScreenshot implements Screenshot {
-
+public final class ElementScreenshot implements KeepContextScreenshot {
 
     private final WebElement element;
     private String describe;
+    KeepContextScreenshot delegate;
 
     ElementScreenshot(WebElement element) {
         this.element = element;
@@ -55,7 +56,7 @@ public final class ElementScreenshot implements Screenshot {
                 toIntExact((Long) map.get("width"))
         );
 
-        Screenshot delegate = isVisible
+        delegate = isVisible
                 ? new ViewportAreaScreenshot(rectangle)
                 : new PageAreaScreenshot(rectangle);
         return delegate.take(webDriver, configuration);
@@ -67,5 +68,10 @@ public final class ElementScreenshot implements Screenshot {
         return describe == null
                 ? elementDescribe
                 : String.format("%s (%s)", describe, elementDescribe);
+    }
+
+    @Override
+    public BufferedImage getContextScreenshot(Color color) {
+        return delegate.getContextScreenshot(color);
     }
 }

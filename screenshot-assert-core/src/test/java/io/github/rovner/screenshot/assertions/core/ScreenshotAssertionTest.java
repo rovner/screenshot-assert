@@ -6,6 +6,7 @@ import io.github.rovner.screenshot.assertions.core.diff.ImageDiffer;
 import io.github.rovner.screenshot.assertions.core.exceptions.NoReferenceException;
 import io.github.rovner.screenshot.assertions.core.exceptions.ScreenshotAssertionError;
 import io.github.rovner.screenshot.assertions.core.reference.ReferenceStorage;
+import io.github.rovner.screenshot.assertions.core.screenshot.KeepContextScreenshot;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +42,8 @@ public class ScreenshotAssertionTest {
     ReferenceStorage referenceStorage;
     @Mock
     Screenshot screenshot;
+    @Mock
+    KeepContextScreenshot keepContextScreenshot;
     @Mock
     ImageDiffer differ;
     @Mock
@@ -192,5 +195,21 @@ public class ScreenshotAssertionTest {
         verify(allureListener, times(0)).handleDiffUpdated(any());
         verify(allureListener, times(0)).handleNoDiff(any());
         verify(referenceStorage, times(0)).write(id, image);
+    }
+
+    @Test
+    @DisplayName("Should attach context screenshot")
+    void shouldAttachContextScreenshot() throws IOException {
+        assertion = new ScreenshotAssertion(webDriver, configuration, properties, keepContextScreenshot);
+        when(keepContextScreenshot.take(any(), eq(configuration.getScreenshotConfiguration()))).thenReturn(image);
+        when(referenceStorage.read(id)).thenReturn(image);
+        when(keepContextScreenshot.describe()).thenReturn("test-element");
+        when(keepContextScreenshot.getContextScreenshot(any())).thenReturn(image);
+        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
+        when(properties.isUpdateReferenceImage()).thenReturn(false);
+
+        assertThatThrownBy(() -> assertion.isEqualToReferenceId(id))
+                .isInstanceOf(ScreenshotAssertionError.class);
+        verify(allureListener, times(1)).handleContextScreenshot(image);
     }
 }

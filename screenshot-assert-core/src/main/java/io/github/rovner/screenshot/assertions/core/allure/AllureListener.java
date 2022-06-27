@@ -38,6 +38,14 @@ public interface AllureListener {
      */
     void handleNoDiff(BufferedImage actual);
 
+
+    /**
+     * Called when there is context screenshot for diff.
+     *
+     * @param screenshot context screenshot.
+     */
+    void handleContextScreenshot(BufferedImage screenshot);
+
     /**
      * Returns name of step to be added in allure report.
      *

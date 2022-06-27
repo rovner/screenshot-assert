@@ -51,6 +51,11 @@ public class DefaultAllureListener implements AllureListener {
         attachScreenshot("actual", actual);
     }
 
+    @Override
+    public void handleContextScreenshot(BufferedImage screenshot) {
+        attachScreenshot("screenshot diff context", screenshot);
+    }
+
     @SuppressWarnings("UnusedReturnValue")
     @Attachment(value = "{name}", type = "image/png", fileExtension = "png")
     private byte[] attachScreenshot(@SuppressWarnings({"unused", "SameParameterValue"}) String name, BufferedImage image) {
@@ -58,7 +63,7 @@ public class DefaultAllureListener implements AllureListener {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    @Attachment(value = "screen diff info", type = "text/plain", fileExtension = "txt")
+    @Attachment(value = "screenshot diff info", type = "text/plain", fileExtension = "txt")
     private String attachDiffInfo(ImageDiff diff) {
         StringBuilder sb = new StringBuilder()
                 .append("hash code: ")
@@ -80,7 +85,7 @@ public class DefaultAllureListener implements AllureListener {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    @Attachment(value = "screen diff", type = "application/vnd.allure.image.diff", fileExtension = "json")
+    @Attachment(value = "screenshot diff", type = "application/vnd.allure.image.diff", fileExtension = "json")
     private String attachScreenDiff(ImageDiff diff) {
         return GSON.toJson(ScreenDiff.builder()
                 .actual(DATA_IMAGE_PNG_BASE_64 + toBase64(diff.getActual()))

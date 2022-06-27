@@ -1,15 +1,18 @@
 package io.github.rovner.screenshot.assertions.core.screenshot;
 
+import io.github.rovner.screenshot.assertions.core.ImageUtils;
 import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import org.openqa.selenium.Rectangle;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
  * Takes screenshot of desired area of the whole pager
  */
-public final class PageAreaScreenshot implements Screenshot {
+public final class PageAreaScreenshot implements KeepContextScreenshot {
     private final Rectangle rectangle;
+    private BufferedImage contextScreenshot;
 
     private String describe;
 
@@ -24,8 +27,8 @@ public final class PageAreaScreenshot implements Screenshot {
 
     @Override
     public BufferedImage take(WebDriverWrapper webDriver, ScreenshotConfiguration configuration) {
-        BufferedImage bufferedImage = new PageScreenshot().take(webDriver, configuration);
-        return configuration.getImageCropper().crop(bufferedImage, rectangle);
+        contextScreenshot = new PageScreenshot().take(webDriver, configuration);
+        return configuration.getImageCropper().crop(contextScreenshot, rectangle);
     }
 
     @Override
@@ -35,5 +38,10 @@ public final class PageAreaScreenshot implements Screenshot {
         return describe == null
                 ? areaDescribe
                 : String.format("%s (%s)", describe, areaDescribe);
+    }
+
+    @Override
+    public BufferedImage getContextScreenshot(Color color) {
+        return ImageUtils.drawRectangle(contextScreenshot, rectangle, color);
     }
 }

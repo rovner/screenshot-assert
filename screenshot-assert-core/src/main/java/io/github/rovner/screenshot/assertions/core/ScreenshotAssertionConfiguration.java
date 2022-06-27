@@ -12,6 +12,10 @@ import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 
+import java.awt.*;
+
+import static java.awt.Color.MAGENTA;
+
 @Data
 @Builder(toBuilder = true)
 public class ScreenshotAssertionConfiguration {
@@ -22,10 +26,11 @@ public class ScreenshotAssertionConfiguration {
     private ImageDiffer imageDiffer = new DefaultImageDiffer();
     @Default
     private AllureListener allureListener = new DefaultAllureListener();
-
     @Default
     private boolean isSoft = false;
     @Default
     private SoftExceptionCollector softExceptionCollector = new DefaultSoftExceptionCollector();
+    @Default
+    private Color contextMarkColor = MAGENTA;
 
 }

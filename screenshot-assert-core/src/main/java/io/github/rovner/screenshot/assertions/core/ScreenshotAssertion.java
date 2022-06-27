@@ -6,11 +6,13 @@ import io.github.rovner.screenshot.assertions.core.exceptions.NoReferenceExcepti
 import io.github.rovner.screenshot.assertions.core.exceptions.ScreenshotAssertionError;
 import io.github.rovner.screenshot.assertions.core.ignoring.Ignoring;
 import io.github.rovner.screenshot.assertions.core.ignoring.WebDriverInit;
+import io.github.rovner.screenshot.assertions.core.screenshot.KeepContextScreenshot;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
@@ -114,6 +116,11 @@ public class ScreenshotAssertion {
                 configuration.getAllureListener().handleDiffUpdated(diff.get());
             } else {
                 configuration.getAllureListener().handleDiff(diff.get());
+                if (screenshot instanceof KeepContextScreenshot) {
+                    BufferedImage context = ((KeepContextScreenshot) screenshot)
+                            .getContextScreenshot(configuration.getContextMarkColor());
+                    configuration.getAllureListener().handleContextScreenshot(context);
+                }
                 throw new ScreenshotAssertionError(String.format("Expected screenshot of %s to be equal to " +
                         "reference %s, but is was not", screenshot.describe(), id));
             }

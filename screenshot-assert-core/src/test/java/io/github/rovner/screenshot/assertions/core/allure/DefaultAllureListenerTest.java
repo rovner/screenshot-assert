@@ -61,6 +61,14 @@ public class DefaultAllureListenerTest {
     }
 
     @Test
+    @DisplayName("Should attach context image")
+    void shouldHandleContextImage() throws IOException {
+        List<Path> results = runAndGetNewResults(() -> listener.handleContextScreenshot(image1));
+        assertThat(results).hasSize(1);
+        assertThat(makeDiff(results)).isEmpty();
+    }
+
+    @Test
     @DisplayName("Should attach diff when there is difference")
     void shouldHandleDiff() throws IOException {
         ImageDiff imageDiff = ImageDiff.builder()

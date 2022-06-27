@@ -77,7 +77,7 @@ public class PageAreaScreenshotTest {
             return new BufferedImage(original.getWidth() / 2, original.getHeight() / 2, TYPE_4BYTE_ABGR);
         });
 
-        BufferedImage screenshot = screenshotOfPageArea(rectangle).take(webDriver, configuration);
+        BufferedImage screenshot = screenshotOfPageArea(2, 3, 6, 4).take(webDriver, configuration);
         assertThat(screenshot).isEqualTo(image2);
     }
 
