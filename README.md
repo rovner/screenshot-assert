@@ -16,29 +16,28 @@ Benefits:
 Maven:
 
 ```xml
-
 <dependency>
     <groupId>io.github.rovner</groupId>
     <artifactId>screenshot-assert-core</artifactId>
-    <version>${screenshotAssertVersion}</version>
+    <version>1.0.0</version>
     <scope>test</scope>
 </dependency>
-
-        <!--extension for junit 5-->
+```
+```xml
+<!--extension for junit 5-->
 <dependency>
-<groupId>io.github.rovner</groupId>
-<artifactId>screenshot-assert-junit5</artifactId>
-<version>${screenshotAssertVersion}</version>
-<scope>test</scope>
+    <groupId>io.github.rovner</groupId>
+    <artifactId>screenshot-assert-junit5</artifactId>
+    <version>1.0.0</version>
+    <scope>test</scope>
 </dependency>
 ```
 
 Gradle:
-
 ```groovy
-testImplementation 'io.github.rovner:screenshot-assert-core:${screenshotAssertVersion}'
+testImplementation 'io.github.rovner:screenshot-assert-core:1.0.0'
 //extension for junit 5
-testImplementation 'io.github.rovner:screenshot-assert-junit5:${screenshotAssertVersion}'
+testImplementation 'io.github.rovner:screenshot-assert-junit5:1.0.0'
 ```
 
 ### Usage
