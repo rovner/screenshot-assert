@@ -17,6 +17,7 @@ public class SoftScreenshotAssertExtension extends BaseScreenshotAssertExtension
 
     public SoftScreenshotAssertExtension(Supplier<WebDriver> webDriverSupplier) {
         super(webDriverSupplier);
+        configuration.setSoft(true);
     }
 
     /**
@@ -33,7 +34,6 @@ public class SoftScreenshotAssertExtension extends BaseScreenshotAssertExtension
 
     @Override
     public ScreenshotAssertion assertThat(Screenshot screenshot) {
-        configuration.setSoft(true);
         return getScreenshotAssertions().assertThat(screenshot);
     }
     

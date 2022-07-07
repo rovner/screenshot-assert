@@ -36,4 +36,10 @@ public class SoftExamplesTest extends BaseTest {
         softScreenshotAssert.assertThat(screenshotOfElementFoundBy(textSelector))
                 .isEqualToReferenceId("diff_2");
     }
+
+    @Test
+    @DisplayName("No assertions test")
+    void testWithoutAssertions() {
+        //should not fail
+    }
 }
