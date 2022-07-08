@@ -4,11 +4,14 @@ import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import io.github.rovner.screenshot.assertions.core.exceptions.TooManyElementsException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebElement;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Takes screenshot of web element that found by selector.
@@ -41,6 +44,11 @@ public final class ElementFoundByScreenshot implements KeepContextScreenshot {
         }
         delegate = new ElementScreenshot(elements.get(0));
         return delegate.take(webDriver, configuration);
+    }
+
+    @Override
+    public Set<Rectangle> shiftAreas(Set<Rectangle> areas) {
+        return delegate.shiftAreas(areas);
     }
 
     @Override

@@ -6,7 +6,9 @@ import org.openqa.selenium.WebElement;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Math.toIntExact;
 
@@ -60,6 +62,11 @@ public final class ElementScreenshot implements KeepContextScreenshot {
                 ? new ViewportAreaScreenshot(rectangle)
                 : new PageAreaScreenshot(rectangle);
         return delegate.take(webDriver, configuration);
+    }
+
+    @Override
+    public Set<Rectangle> shiftAreas(Set<Rectangle> areas) {
+        return delegate.shiftAreas(areas);
     }
 
     @Override

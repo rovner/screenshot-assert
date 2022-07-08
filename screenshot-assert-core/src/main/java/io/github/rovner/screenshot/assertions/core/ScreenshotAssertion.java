@@ -4,12 +4,15 @@ import io.github.rovner.screenshot.assertions.core.diff.ImageDiff;
 import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import io.github.rovner.screenshot.assertions.core.exceptions.NoReferenceException;
 import io.github.rovner.screenshot.assertions.core.exceptions.ScreenshotAssertionError;
+import io.github.rovner.screenshot.assertions.core.ignoring.AreaIgnoring;
+import io.github.rovner.screenshot.assertions.core.ignoring.HashIgnoring;
 import io.github.rovner.screenshot.assertions.core.ignoring.Ignoring;
 import io.github.rovner.screenshot.assertions.core.ignoring.WebDriverInit;
 import io.github.rovner.screenshot.assertions.core.screenshot.KeepContextScreenshot;
 import io.github.rovner.screenshot.assertions.core.screenshot.Screenshot;
 import io.qameta.allure.Step;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebDriver;
 
 import java.awt.*;
@@ -109,7 +112,10 @@ public class ScreenshotAssertion {
             throw new NoReferenceException(String.format("No reference image %s, " +
                     "current screenshot saved as reference", configuration.getReferenceStorage().describe(id)), e);
         }
-        Optional<ImageDiff> diff = configuration.getImageDiffer().makeDiff(actual, reference, ignorings);
+
+        Set<Rectangle> ignoredAreas = screenshot.shiftAreas(AreaIgnoring.getIgnoredAreas(ignorings));
+        Set<Integer> ignoredHashes = HashIgnoring.getIgnoredHashes(ignorings);
+        Optional<ImageDiff> diff = configuration.getImageDiffer().makeDiff(actual, reference, ignoredAreas, ignoredHashes);
         if (diff.isPresent()) {
             if (properties.isUpdateReferenceImage()) {
                 configuration.getReferenceStorage().write(id, actual);

@@ -1,8 +1,5 @@
 package io.github.rovner.screenshot.assertions.core.diff;
 
-import io.github.rovner.screenshot.assertions.core.ignoring.Ignoring;
-import io.github.rovner.screenshot.assertions.core.ignoring.Ignorings;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,15 +9,15 @@ import org.openqa.selenium.Rectangle;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.awt.Color.*;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultImageDifferTest {
@@ -39,7 +36,7 @@ public class DefaultImageDifferTest {
     @Test
     @DisplayName("Should be empty for equal images on byte array level")
     void shouldBeEqualForTheSameImages() {
-        assertThat(differ.makeDiff(actual, reference, emptyList())).isEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), emptySet())).isEmpty();
     }
 
     @Test
@@ -48,7 +45,7 @@ public class DefaultImageDifferTest {
         actual.setRGB(0, 0, RED.getRGB());
         reference = new BufferedImage(10, 10, TYPE_INT_ARGB);
 
-        assertThat(differ.makeDiff(actual, reference, emptyList())).isNotEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), emptySet())).isNotEmpty();
     }
 
     @Test
@@ -57,7 +54,7 @@ public class DefaultImageDifferTest {
         actual.setRGB(0, 0, RED.getRGB());
         reference.setRGB(0, 0, RED.getRGB() + 10);
 
-        assertThat(differ.makeDiff(actual, reference, emptyList())).isEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), emptySet())).isEmpty();
     }
 
     @Test
@@ -67,7 +64,7 @@ public class DefaultImageDifferTest {
         reference.setRGB(0, 0, RED.getRGB() + 1);
 
         differ.setColorDistortion(1);
-        assertThat(differ.makeDiff(actual, reference, emptyList())).isEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), emptySet())).isEmpty();
     }
 
     @Test
@@ -76,7 +73,7 @@ public class DefaultImageDifferTest {
         actual.setRGB(0, 0, RED.getRGB());
         reference.setRGB(0, 0, RED.getRGB() + 1);
         differ.setColorDistortion(0);
-        assertThat(differ.makeDiff(actual, reference, emptyList())).isNotEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), emptySet())).isNotEmpty();
     }
 
     @Test
@@ -86,7 +83,7 @@ public class DefaultImageDifferTest {
         reference.setRGB(0, 0, RED.getRGB() + 12);
 
         differ.setDiffSizeTrigger(1);
-        assertThat(differ.makeDiff(actual, reference, emptyList())).isEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), emptySet())).isEmpty();
     }
 
     @Test
@@ -95,7 +92,7 @@ public class DefaultImageDifferTest {
         actual.setRGB(0, 0, RED.getRGB());
         reference.setRGB(0, 0, RED.getRGB() + 12);
 
-        assertThat(differ.makeDiff(actual, reference, singletonList(Ignorings.hash(961)))).isEmpty();
+        assertThat(differ.makeDiff(actual, reference, emptySet(), singletonMap(961, null).keySet())).isEmpty();
     }
 
     @Test
@@ -103,7 +100,7 @@ public class DefaultImageDifferTest {
     void shouldBeEqualIfIgnoredByCoordinate() {
         actual.setRGB(0, 0, RED.getRGB());
         reference.setRGB(0, 0, RED.getRGB() + 12);
-        assertThat(differ.makeDiff(actual, reference, singletonList(Ignorings.area(0, 0, 1, 1)))).isEmpty();
+        assertThat(differ.makeDiff(actual, reference, singletonMap(new Rectangle(0, 0, 1, 1), null).keySet(), emptySet())).isEmpty();
     }
 
     @SuppressWarnings("unused")
@@ -119,14 +116,11 @@ public class DefaultImageDifferTest {
         Color color2 = new Color(red2, green2, blue2);
         actual.setRGB(0, 0, color1.getRGB());
         reference.setRGB(0, 0, color2.getRGB());
-        List<Integer> hashes = asList(1, 2, 3);
+        Set<Integer> hashes = new HashSet<>(asList(1, 2, 3));
         Rectangle rect1 = new Rectangle(1, 1, 2, 2);
         Rectangle rect2 = new Rectangle(0, 3, 2, 2);
-        List<Ignoring> ignorings = asList(
-                Ignorings.hashes(hashes),
-                Ignorings.areas(rect1, rect2)
-        );
-        Optional<ImageDiff> diff = differ.makeDiff(actual, reference, ignorings);
+        HashSet<Rectangle> rects = new HashSet<>(asList(rect1, rect2));
+        Optional<ImageDiff> diff = differ.makeDiff(actual, reference, rects, hashes);
         assertThat(diff).isNotEmpty();
         assertThat(diff.get().getDiff().getRGB(0, 0)).isEqualTo(RED.getRGB());
     }
@@ -140,7 +134,7 @@ public class DefaultImageDifferTest {
         reference.setRGB(0, 0, RED.getRGB() + 11);
         Optional<ImageDiff> diff = differ
                 .setDiffColor(ORANGE)
-                .makeDiff(actual, reference, emptyList());
+                .makeDiff(actual, reference, emptySet(), emptySet());
         assertThat(diff).isNotEmpty();
         assertThat(diff.get().getDiff().getRGB(0, 0)).isEqualTo(ORANGE.getRGB());
         assertThat(diff.get().getDiff().getRGB(1, 1)).isEqualTo(BLUE.getRGB());
@@ -158,7 +152,7 @@ public class DefaultImageDifferTest {
         BufferedImage actual1 = new BufferedImage(actualWidth, actualHeight, TYPE_INT_RGB);
         BufferedImage reference1 = new BufferedImage(referenceWidth, referenceHeight, TYPE_INT_RGB);
         Optional<ImageDiff> diff = differ
-                .makeDiff(actual1, reference1, emptyList());
+                .makeDiff(actual1, reference1, emptySet(), emptySet());
         assertThat(diff).isNotEmpty();
     }
 }

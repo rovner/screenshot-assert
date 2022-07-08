@@ -16,6 +16,7 @@ import static java.awt.Color.RED;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -29,7 +30,7 @@ public class ImageUtilsTest {
         byte[] bytes = toByteArray(image);
         assertThat(bytes).hasSize(71);
         BufferedImage actual = toBufferedImage(bytes);
-        assertThat(new DefaultImageDiffer().makeDiff(actual, image, emptyList())).isEmpty();
+        assertThat(new DefaultImageDiffer().makeDiff(actual, image, emptySet(), emptySet())).isEmpty();
     }
 
     @Test

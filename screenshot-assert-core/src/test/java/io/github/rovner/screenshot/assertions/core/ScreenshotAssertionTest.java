@@ -24,6 +24,7 @@ import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.ele
 import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.hash;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,7 +71,7 @@ public class ScreenshotAssertionTest {
     void shouldCompareWithReference() throws IOException {
         when(screenshot.take(any(), eq(configuration.getScreenshotConfiguration()))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
-        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.empty());
+        when(differ.makeDiff(any(), any(), anySet(), anySet())).thenReturn(Optional.empty());
         when(properties.isSoft()).thenReturn(false);
 
         assertion.ignoring(hash(1))
@@ -82,9 +83,7 @@ public class ScreenshotAssertionTest {
         verify(allureListener, times(0)).handleNoReference(any());
         verify(allureListener, times(0)).handleDiffUpdated(any());
         verify(allureListener, times(1)).handleNoDiff(any());
-        verify(differ, times(1)).makeDiff(eq(image), any(), eq(newHashSet(asList(
-                hash(1), hash(2), hash(3), elementsBy(cssSelector(".test"))
-        ))));
+        verify(differ, times(1)).makeDiff(eq(image), any(), anySet(), anySet());
     }
 
     @Test
@@ -92,7 +91,7 @@ public class ScreenshotAssertionTest {
     void shouldCompareWithReferenceSoft() throws IOException {
         when(screenshot.take(any(), eq(configuration.getScreenshotConfiguration()))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
-        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
+        when(differ.makeDiff(any(), any(), anySet(), anySet())).thenReturn(Optional.of(ImageDiff.builder().build()));
         configuration.setSoft(true);
 
         assertion.isEqualToReferenceId(id);
@@ -109,7 +108,7 @@ public class ScreenshotAssertionTest {
         when(screenshot.take(any(), eq(configuration.getScreenshotConfiguration()))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(screenshot.describe()).thenReturn("test-element");
-        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
+        when(differ.makeDiff(any(), any(), anySet(), anySet())).thenReturn(Optional.of(ImageDiff.builder().build()));
         when(properties.isUpdateReferenceImage()).thenReturn(false);
 
         assertThatThrownBy(() -> assertion.isEqualToReferenceId(id))
@@ -127,7 +126,7 @@ public class ScreenshotAssertionTest {
         when(screenshot.take(any(), eq(configuration.getScreenshotConfiguration()))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
         when(screenshot.describe()).thenReturn("test-element");
-        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
+        when(differ.makeDiff(any(), any(), anySet(), anySet())).thenReturn(Optional.of(ImageDiff.builder().build()));
         when(properties.isUpdateReferenceImage()).thenReturn(false);
 
         configuration.setSoft(true);
@@ -147,7 +146,7 @@ public class ScreenshotAssertionTest {
     void shouldSaveActualAsReference() throws IOException {
         when(screenshot.take(any(), eq(configuration.getScreenshotConfiguration()))).thenReturn(image);
         when(referenceStorage.read(id)).thenReturn(image);
-        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
+        when(differ.makeDiff(any(), any(), anySet(), anySet())).thenReturn(Optional.of(ImageDiff.builder().build()));
         when(properties.isUpdateReferenceImage()).thenReturn(true);
 
         assertion.isEqualToReferenceId(id);
@@ -205,7 +204,7 @@ public class ScreenshotAssertionTest {
         when(referenceStorage.read(id)).thenReturn(image);
         when(keepContextScreenshot.describe()).thenReturn("test-element");
         when(keepContextScreenshot.getContextScreenshot(any())).thenReturn(image);
-        when(differ.makeDiff(any(), any(), anyCollection())).thenReturn(Optional.of(ImageDiff.builder().build()));
+        when(differ.makeDiff(any(), any(), anySet(), anySet())).thenReturn(Optional.of(ImageDiff.builder().build()));
         when(properties.isUpdateReferenceImage()).thenReturn(false);
 
         assertThatThrownBy(() -> assertion.isEqualToReferenceId(id))

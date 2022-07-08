@@ -6,6 +6,9 @@ import org.openqa.selenium.Rectangle;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Takes screenshot of desired area of viewport.
@@ -29,6 +32,17 @@ public final class ViewportAreaScreenshot implements KeepContextScreenshot {
     public BufferedImage take(WebDriverWrapper webDriver, ScreenshotConfiguration configuration) {
         contextScreenshot = new ViewportScreenshot().take(webDriver, configuration);
         return configuration.getImageCropper().crop(contextScreenshot, rectangle);
+    }
+
+    @Override
+    public Set<Rectangle> shiftAreas(Set<Rectangle> areas) {
+        return areas.stream()
+                .map(toShift -> new Rectangle(
+                        toShift.x - rectangle.x,
+                        toShift.y - rectangle.y,
+                        toShift.height,
+                        toShift.width))
+                .collect(Collectors.toSet());
     }
 
     @Override

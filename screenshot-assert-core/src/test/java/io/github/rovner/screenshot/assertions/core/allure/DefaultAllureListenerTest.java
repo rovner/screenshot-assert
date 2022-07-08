@@ -153,6 +153,6 @@ public class DefaultAllureListenerTest {
 
     private Optional<ImageDiff> makeDiff(List<Path> results) throws IOException {
         BufferedImage actual = ImageIO.read(results.get(0).toFile());
-        return new DefaultImageDiffer().makeDiff(actual, image1, emptyList());
+        return new DefaultImageDiffer().makeDiff(actual, image1, emptySet(), emptySet());
     }
 }

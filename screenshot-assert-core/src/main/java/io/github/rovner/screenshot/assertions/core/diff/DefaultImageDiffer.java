@@ -1,8 +1,5 @@
 package io.github.rovner.screenshot.assertions.core.diff;
 
-import io.github.rovner.screenshot.assertions.core.ignoring.AreaIgnoring;
-import io.github.rovner.screenshot.assertions.core.ignoring.HashIgnoring;
-import io.github.rovner.screenshot.assertions.core.ignoring.Ignoring;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.Rectangle;
 
@@ -66,17 +63,17 @@ public class DefaultImageDiffer implements ImageDiffer {
     }
 
     @Override
-    public Optional<ImageDiff> makeDiff(BufferedImage actual, BufferedImage reference, Collection<Ignoring> ignorings) {
+    public Optional<ImageDiff> makeDiff(BufferedImage actual, BufferedImage reference, Set<Rectangle> ignoredAreas, Set<Integer> ignoredHashes) {
         if (areImagesEqual(actual, reference)) {
             return Optional.empty();
         }
-        Set<Rectangle> ignoredAreas = AreaIgnoring.getIgnoredAreas(ignorings);
+
         Set<Point> diffPoints = findDiffPoints(actual, reference, ignoredAreas);
         if (diffPoints.size() <= diffSizeTrigger) {
             return Optional.empty();
         }
         int diffHashCode = countDiffPointsHashCode(diffPoints);
-        Set<Integer> ignoredHashes = HashIgnoring.getIgnoredHashes(ignorings);
+
         if (ignoredHashes.contains(diffHashCode)) {
             return Optional.empty();
         }

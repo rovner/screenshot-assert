@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import static io.github.rovner.screenshot.assertions.core.ImageUtils.toByteArray;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +55,7 @@ public class WebDriverWrapperTest {
         BufferedImage image = new BufferedImage(10, 10, TYPE_4BYTE_ABGR);
         when(webDriver.getScreenshotAs(any())).thenReturn(toByteArray(image));
         BufferedImage screenshot = wrapper.takeScreenshot();
-        assertThat(differ.makeDiff(screenshot, image, emptyList())).isEmpty();
+        assertThat(differ.makeDiff(screenshot, image, emptySet(), emptySet())).isEmpty();
     }
 
     @DisplayName("Should execute script")

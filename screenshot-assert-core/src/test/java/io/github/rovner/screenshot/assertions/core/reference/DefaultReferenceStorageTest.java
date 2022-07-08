@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -27,7 +28,7 @@ public class DefaultReferenceStorageTest {
         referenceStorage.write(id, image);
         assertThat(references.resolve(id + ".png")).exists();
         BufferedImage actual = referenceStorage.read(id);
-        assertThat(new DefaultImageDiffer().makeDiff(actual, image, emptyList())).isEmpty();
+        assertThat(new DefaultImageDiffer().makeDiff(actual, image, emptySet(), emptySet())).isEmpty();
     }
 
     @Test

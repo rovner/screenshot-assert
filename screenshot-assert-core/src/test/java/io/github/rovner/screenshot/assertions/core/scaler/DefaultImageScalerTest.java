@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -29,7 +30,7 @@ public class DefaultImageScalerTest {
     void shouldScale() {
         BufferedImage scaled = scaler.scale(image, 2.0);
         BufferedImage expected = new BufferedImage(10, 15, TYPE_INT_RGB);
-        assertThat(new DefaultImageDiffer().makeDiff(scaled, expected, emptyList())).isEmpty();
+        assertThat(new DefaultImageDiffer().makeDiff(scaled, expected, emptySet(), emptySet())).isEmpty();
     }
 
     @Test
