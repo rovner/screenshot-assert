@@ -63,7 +63,8 @@ public class DefaultImageDiffer implements ImageDiffer {
     }
 
     @Override
-    public Optional<ImageDiff> makeDiff(BufferedImage actual, BufferedImage reference, Set<Rectangle> ignoredAreas, Set<Integer> ignoredHashes) {
+    public Optional<ImageDiff> makeDiff(BufferedImage actual, BufferedImage reference,
+                                        Set<Rectangle> ignoredAreas, Set<Integer> ignoredHashes) {
         if (areImagesEqual(actual, reference)) {
             return Optional.empty();
         }
@@ -84,6 +85,7 @@ public class DefaultImageDiffer implements ImageDiffer {
                 .diffHash(diffHashCode)
                 .ignoredAreas(ignoredAreas)
                 .ignoredHashes(ignoredHashes)
+                .diffPixelCount(diffPoints.size())
                 .build());
     }
 

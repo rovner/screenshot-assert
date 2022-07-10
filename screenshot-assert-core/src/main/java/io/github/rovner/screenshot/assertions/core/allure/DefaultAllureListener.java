@@ -68,6 +68,9 @@ public class DefaultAllureListener implements AllureListener {
         StringBuilder sb = new StringBuilder()
                 .append("hash code: ")
                 .append(diff.getDiffHash())
+                .append("\n")
+                .append("diff pixels count:")
+                .append(diff.getDiffPixelCount())
                 .append("\n");
         if (!diff.getIgnoredHashes().isEmpty()) {
             sb.append("ignored hashes: ")

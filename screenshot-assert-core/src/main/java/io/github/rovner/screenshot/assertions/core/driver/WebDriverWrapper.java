@@ -1,5 +1,6 @@
 package io.github.rovner.screenshot.assertions.core.driver;
 
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 
 import java.awt.image.BufferedImage;
@@ -11,6 +12,7 @@ import static org.openqa.selenium.remote.CapabilityType.PLATFORM_NAME;
 /**
  * Web driver wrapper aimed to simplify some web driver interactions like executing scripts or taking screenshots
  */
+@Slf4j
 public class WebDriverWrapper {
 
     private final WebDriver webDriver;
@@ -34,6 +36,7 @@ public class WebDriverWrapper {
      * @return screenshot
      */
     public BufferedImage takeScreenshot() {
+        disableCaretBlinking();
         return toBufferedImage(((TakesScreenshot) webDriver).getScreenshotAs(BYTES));
     }
 
@@ -114,5 +117,18 @@ public class WebDriverWrapper {
                     webDriver.getClass().getCanonicalName(), HasCapabilities.class.getCanonicalName()));
         }
         return ((HasCapabilities) webDriver).getCapabilities();
+    }
+
+    private void disableCaretBlinking() {
+        try {
+            executeScript("var caretStyle = ';caret-color: transparent !important;';\n" +
+                    "var body = document.getElementsByTagName('body')[0];\n" +
+                    "var style = body.getAttribute('style') || '';\n" +
+                    "if (style.indexOf(caretStyle) === -1) {\n" +
+                    "   body.setAttribute('style', style + caretStyle)\n" +
+                    "}");
+        } catch (RuntimeException e) {
+            log.warn("Failed to disable caret blinking", e);
+        }
     }
 }

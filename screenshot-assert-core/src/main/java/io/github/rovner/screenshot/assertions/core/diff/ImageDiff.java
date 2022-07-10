@@ -19,4 +19,5 @@ public class ImageDiff {
     private Integer diffHash;
     private Set<Integer> ignoredHashes;
     private Set<Rectangle> ignoredAreas;
+    private int diffPixelCount;
 }
