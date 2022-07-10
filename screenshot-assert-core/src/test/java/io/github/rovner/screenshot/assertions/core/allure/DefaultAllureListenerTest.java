@@ -76,6 +76,7 @@ public class DefaultAllureListenerTest {
                 .diff(image2)
                 .reference(image3)
                 .diffHash(123)
+                .diffPixelCount(34)
                 .ignoredAreas(new HashSet<>(asList(rectangle1, rectangle2)))
                 .ignoredHashes(new HashSet<>(asList(321, 432)))
                 .build();
@@ -90,6 +91,7 @@ public class DefaultAllureListenerTest {
 
         String diffInfo = read(findFirstWithExtension(results, ".txt"));
         assertThat(diffInfo).isEqualTo("hash code: 123\n" +
+                "diff pixels count:34\n" +
                 "ignored hashes: 432,321\n" +
                 "ignored areas: [x: 0, y: 0, width: 5, height: 5],[x: 5, y: 0, width: 2, height: 2]\n");
     }
@@ -102,6 +104,7 @@ public class DefaultAllureListenerTest {
                 .diff(image2)
                 .reference(image3)
                 .diffHash(123)
+                .diffPixelCount(34)
                 .ignoredHashes(emptySet())
                 .ignoredAreas(emptySet())
                 .build();
@@ -109,7 +112,8 @@ public class DefaultAllureListenerTest {
         assertThat(results).hasSize(2);
 
         String diffInfo = read(findFirstWithExtension(results, ".txt"));
-        assertThat(diffInfo).isEqualTo("hash code: 123\n");
+        assertThat(diffInfo).isEqualTo("hash code: 123\n" +
+                "diff pixels count:34\n");
     }
 
     @Test
