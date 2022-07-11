@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.awt.Color.RED;
+import static java.awt.Color.WHITE;
 import static java.lang.Integer.MAX_VALUE;
 
 /**
@@ -79,14 +80,26 @@ public class DefaultImageDiffer implements ImageDiffer {
             return Optional.empty();
         }
         return Optional.of(ImageDiff.builder()
-                .actual(actual)
-                .reference(reference)
+                .actual(resizeToMax(actual, reference))
+                .reference(resizeToMax(reference, actual))
                 .diff(markDiffImage(actual, reference, diffPoints))
                 .diffHash(diffHashCode)
                 .ignoredAreas(ignoredAreas)
                 .ignoredHashes(ignoredHashes)
                 .diffPixelCount(diffPoints.size())
                 .build());
+    }
+
+    private BufferedImage resizeToMax(BufferedImage image, BufferedImage other) {
+        int maxWidth = Math.max(image.getWidth(), other.getWidth());
+        int maxHeight = Math.max(image.getHeight(), other.getHeight());
+        BufferedImage diffImage = new BufferedImage(maxWidth, maxHeight, image.getType());
+        Graphics graphics = diffImage.getGraphics();
+        graphics.setColor(WHITE);
+        graphics.fillRect(0, 0, maxWidth, maxHeight);
+        graphics.drawImage(image, 0, 0, null);
+        graphics.dispose();
+        return diffImage;
     }
 
     private BufferedImage markDiffImage(BufferedImage actual, BufferedImage reference, Set<Point> diffPoints) {

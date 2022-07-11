@@ -106,6 +106,23 @@ public class ChromeExamplesTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Screenshot of the area with different size (should be failed)")
+    void testAreaScreenshotDifferentSize() {
+        goToGithubMainPage();
+        screenshotAssert.assertThat(screenshotOfViewportArea(20, 140, 700, 300))
+                .isEqualToReferenceId("area");
+    }
+
+    @Test
+    @DisplayName("Screenshot of the area ignoring element")
+    void testAreaScreenshotWithIgnoring() {
+        goToGithubMainPage();
+        screenshotAssert.assertThat(screenshotOfViewportArea(20, 140, 640, 120))
+                .ignoring(elementsBy(textSelector))
+                .isEqualToReferenceId("area");
+    }
+
+    @Test
     @DisplayName("Screenshot of the web element")
     void testElementScreenshot() {
         goToGithubMainPage();
