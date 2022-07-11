@@ -1,7 +1,6 @@
 package io.github.rovner.screenshot.assertions.examples;
 
 
-import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import io.github.rovner.screenshot.assertions.examples.utils.BaseTest;
 import io.github.rovner.screenshot.assertions.junit.ScreenshotAssertExtension;
 import io.qameta.allure.Feature;
@@ -12,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.*;
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.*;
 import static io.github.rovner.screenshot.assertions.examples.utils.Drivers.chrome;
+import static org.openqa.selenium.By.cssSelector;
 import static org.openqa.selenium.By.xpath;
 
 @Feature("Framework: Junit5")
@@ -127,6 +129,16 @@ public class ChromeExamplesTest extends BaseTest {
         goToGithubMainPage();
         WebElement element = wd.findElement(textSelector);
         screenshotAssert.assertThat(screenshotOfElement(element))
+                .isEqualToReferenceId("element");
+    }
+
+    @Test
+    @DisplayName("Screenshot of the web element outside of the viewport")
+    void testElementScreenshotNotInViewport() {
+        goToGithubMarketplacePage();
+        ((JavascriptExecutor) wd).executeScript("window.scrollTo(0, 400)");
+        By footer = cssSelector(".MarketplaceBody .container-lg + .container-lg");
+        screenshotAssert.assertThat(screenshotOfElementFoundBy(footer))
                 .isEqualToReferenceId("element");
     }
 
