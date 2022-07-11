@@ -31,7 +31,6 @@ public class ChromeExamplesTest extends BaseTest {
     @BeforeEach
     void beforeEach() throws IOException {
         wd = chrome();
-        new WebDriverWrapper(wd).executeScript("console.log(1)");
     }
 
     @Test
