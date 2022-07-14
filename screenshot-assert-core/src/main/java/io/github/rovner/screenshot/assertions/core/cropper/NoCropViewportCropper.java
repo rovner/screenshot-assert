@@ -5,9 +5,9 @@ import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
 import java.awt.image.BufferedImage;
 
 /**
- * View cropper implementation that does nothing because desktop browsers returns screenshot of viewport already.
+ * View cropper implementation that does nothing.
  */
-public class DesktopViewportCropper implements ViewportCropper {
+public class NoCropViewportCropper implements ViewportCropper {
     @Override
     public BufferedImage crop(BufferedImage image, ImageCropper imageCropper, WebDriverWrapper webDriver, double dpr) {
         return image;

@@ -9,12 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.awt.image.BufferedImage;
 
-import static io.github.rovner.screenshot.assertions.core.cropper.ViewportCroppers.desktop;
+import static io.github.rovner.screenshot.assertions.core.cropper.ViewportCroppers.noCrop;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public class DesktopViewportCropperTest {
+public class NoCropViewportCropperTest {
 
     @Mock
     ImageCropper imageCropper;
@@ -25,7 +25,7 @@ public class DesktopViewportCropperTest {
     @Test
     @DisplayName("Should not crop for desktop cropper")
     void shouldNotCrop() {
-        BufferedImage cropped = desktop().crop(image, imageCropper, wrapper, 1);
+        BufferedImage cropped = noCrop().crop(image, imageCropper, wrapper, 1);
         assertThat(cropped).isEqualTo(image);
     }
 }

@@ -13,12 +13,12 @@ public class ViewportCroppers {
     }
 
     /**
-     * Creates new desktop viewport cropper.
+     * Creates new no crop viewport cropper.
      *
      * @return new desktop cropper.
      */
-    public static ViewportCropper desktop() {
-        return new DesktopViewportCropper();
+    public static ViewportCropper noCrop() {
+        return new NoCropViewportCropper();
     }
 
     /**

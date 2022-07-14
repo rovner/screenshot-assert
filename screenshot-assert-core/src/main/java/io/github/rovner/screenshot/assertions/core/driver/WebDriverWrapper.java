@@ -120,15 +120,26 @@ public class WebDriverWrapper {
     }
 
     private void disableCaretBlinking() {
-        try {
-            executeScript("var caretStyle = ';caret-color: transparent !important;';\n" +
-                    "var body = document.getElementsByTagName('body')[0];\n" +
-                    "var style = body.getAttribute('style') || '';\n" +
-                    "if (style.indexOf(caretStyle) === -1) {\n" +
-                    "   body.setAttribute('style', style + caretStyle)\n" +
-                    "}");
-        } catch (RuntimeException e) {
-            log.warn("Failed to disable caret blinking", e);
+        if (!(webDriver instanceof HasCapabilities)) {
+            return;
+        }
+        Capabilities capabilities = ((HasCapabilities) webDriver).getCapabilities();
+        boolean isNativeApp = capabilities.getCapability("app") != null
+                || capabilities.getCapability("bundleId") != null
+                || capabilities.getCapability("appPackage") != null
+                || capabilities.getCapability("appActivity") != null;
+
+        if (!isNativeApp) {
+            try {
+                executeScript("var caretStyle = ';caret-color: transparent !important;';\n" +
+                        "var body = document.getElementsByTagName('body')[0];\n" +
+                        "var style = body.getAttribute('style') || '';\n" +
+                        "if (style.indexOf(caretStyle) === -1) {\n" +
+                        "   body.setAttribute('style', style + caretStyle)\n" +
+                        "}");
+            } catch (RuntimeException e) {
+                log.warn("Failed to disable caret blinking", e);
+            }
         }
     }
 }

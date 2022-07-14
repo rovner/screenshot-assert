@@ -17,10 +17,14 @@ import org.openqa.selenium.WebElement;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfElement;
+import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfNativeElement;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Sets.newHashSet;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -127,4 +131,29 @@ public class ElementScreenshotTest {
                 .isEqualTo("some element (the element : web-element-to-string)");
     }
 
+    @Test
+    @DisplayName("Should shift coordinates")
+    void shouldShiftCoordinates() {
+        BufferedImage image1 = new BufferedImage(10, 10, TYPE_4BYTE_ABGR);
+        BufferedImage image2 = new BufferedImage(5, 5, TYPE_4BYTE_ABGR);
+        when(webDriver.takeScreenshot()).thenReturn(image1);
+        when(dprDetector.detect(webDriver)).thenReturn(1.0);
+        when(viewportCropper.crop(image1, imageCropper, webDriver, 1.0)).thenReturn(image1);
+        when(scaler.scale(image1, 1.0)).thenReturn(image1);
+        when(imageCropper.crop(image1, rectangle)).thenReturn(image2);
+        when(webDriver.executeScript(anyString(), eq(webElement))).thenReturn(new HashMap<String, Object>() {{
+            put("visible", true);
+            put("x", 2L);
+            put("y", 3L);
+            put("height", 4L);
+            put("width", 6L);
+        }});
+        ElementScreenshot elementScreenshot = screenshotOfElement(webElement);
+        elementScreenshot.take(webDriver, configuration);
+
+        HashSet<Rectangle> toShift = newHashSet(singletonList(new Rectangle(3, 5, 2, 3)));
+        HashSet<Rectangle> shifted = newHashSet(singletonList(new Rectangle(1, 2, 2, 3)));
+        assertThat(elementScreenshot.shiftAreas(toShift))
+                .isEqualTo(shifted);
+    }
 }

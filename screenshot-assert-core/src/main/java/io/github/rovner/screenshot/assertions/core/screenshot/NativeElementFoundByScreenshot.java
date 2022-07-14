@@ -1,0 +1,65 @@
+package io.github.rovner.screenshot.assertions.core.screenshot;
+
+import io.github.rovner.screenshot.assertions.core.driver.WebDriverWrapper;
+import io.github.rovner.screenshot.assertions.core.exceptions.TooManyElementsException;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.Rectangle;
+import org.openqa.selenium.WebElement;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Takes screenshot of native element that found by selector.
+ * Throws {@link NoSuchElementException} if no element is found by selector.
+ * Throws {@link TooManyElementsException} if more than one element found by selector.
+ */
+public final class NativeElementFoundByScreenshot implements KeepContextScreenshot {
+
+    private final By selector;
+    private String describe;
+    private KeepContextScreenshot delegate;
+
+    NativeElementFoundByScreenshot(By selector) {
+        this.selector = selector;
+    }
+
+    public NativeElementFoundByScreenshot as(String describe) {
+        this.describe = describe;
+        return this;
+    }
+
+    @Override
+    public BufferedImage take(WebDriverWrapper webDriver, ScreenshotConfiguration configuration) {
+        List<WebElement> elements = webDriver.getWebDriver().findElements(selector);
+        if (elements.isEmpty()) {
+            throw new NoSuchElementException("No element found by " + selector);
+        }
+        if (elements.size() > 1) {
+            throw new TooManyElementsException("More than one element found by " + selector);
+        }
+        delegate = new NativeElementScreenshot(elements.get(0));
+        return delegate.take(webDriver, configuration);
+    }
+
+    @Override
+    public Set<Rectangle> shiftAreas(Set<Rectangle> areas) {
+        return delegate.shiftAreas(areas);
+    }
+
+    @Override
+    public String describe() {
+        String elementDescribe = String.format("the element found by: %s", selector.toString());
+        return describe == null
+                ? elementDescribe
+                : String.format("%s (%s)", describe, elementDescribe);
+    }
+
+    @Override
+    public BufferedImage getContextScreenshot(Color color) {
+        return delegate.getContextScreenshot(color);
+    }
+}

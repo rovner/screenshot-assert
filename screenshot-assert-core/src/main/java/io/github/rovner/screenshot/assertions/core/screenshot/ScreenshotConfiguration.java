@@ -13,7 +13,7 @@ import lombok.Data;
 
 import java.time.Duration;
 
-import static io.github.rovner.screenshot.assertions.core.cropper.ViewportCroppers.desktop;
+import static io.github.rovner.screenshot.assertions.core.cropper.ViewportCroppers.noCrop;
 import static io.github.rovner.screenshot.assertions.core.cropper.ViewportCroppers.matching;
 import static io.github.rovner.screenshot.assertions.core.driver.WebDriverPredicates.isDesktop;
 
@@ -24,7 +24,7 @@ public class ScreenshotConfiguration {
     private ImageCropper imageCropper = new DefaultImageCropper();
     @Default
     private ViewportCropper viewportCropper = matching()
-            .match(isDesktop(), desktop());
+            .match(isDesktop(), noCrop());
     @Default
     private ImageScaler imageScaler = new DefaultImageScaler();
     @Default

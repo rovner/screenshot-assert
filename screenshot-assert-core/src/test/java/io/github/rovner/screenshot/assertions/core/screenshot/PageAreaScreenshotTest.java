@@ -15,10 +15,14 @@ import org.openqa.selenium.Rectangle;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfPageArea;
+import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.screenshotOfViewportArea;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Sets.newHashSet;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
@@ -93,6 +97,15 @@ public class PageAreaScreenshotTest {
     void shouldDescribe2() {
         assertThat(screenshotOfPageArea(rectangle).as("some element").describe())
                 .isEqualTo("some element (the area [x:2, y:3, width:6, height: 4])");
+    }
+
+    @Test
+    @DisplayName("Should shift coordinates")
+    void shouldShiftCoordinates() {
+        HashSet<Rectangle> toShift = newHashSet(singletonList(new Rectangle(3, 5, 2, 3)));
+        HashSet<Rectangle> shifted = newHashSet(singletonList(new Rectangle(1, 2, 2, 3)));
+        assertThat(screenshotOfPageArea(rectangle).shiftAreas(toShift))
+                .isEqualTo(shifted);
     }
 
 }

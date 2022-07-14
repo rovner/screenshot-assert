@@ -13,13 +13,23 @@ public final class Screenshots {
     }
 
     /**
-     * Creates screenshot of element found by selector.
+     * Creates screenshot of web element found by selector.
      *
      * @param selector of web element to screenshot.
      * @return screenshot object.
      */
     public static ElementFoundByScreenshot screenshotOfElementFoundBy(By selector) {
         return new ElementFoundByScreenshot(selector);
+    }
+
+    /**
+     * Creates screenshot of native element found by selector.
+     *
+     * @param selector of web element to screenshot.
+     * @return screenshot object.
+     */
+    public static NativeElementFoundByScreenshot screenshotOfNativeElementFoundBy(By selector) {
+        return new NativeElementFoundByScreenshot(selector);
     }
 
     /**
@@ -69,13 +79,23 @@ public final class Screenshots {
     }
 
     /**
-     * Creates screenshot of element.
+     * Creates screenshot of web element.
      *
      * @param element web element to screenshot.
      * @return screenshot object.
      */
     public static ElementScreenshot screenshotOfElement(WebElement element) {
         return new ElementScreenshot(element);
+    }
+
+    /**
+     * Creates screenshot of native element.
+     *
+     * @param element web element to screenshot.
+     * @return screenshot object.
+     */
+    public static NativeElementScreenshot screenshotOfNativeElement(WebElement element) {
+        return new NativeElementScreenshot(element);
     }
 
     /**

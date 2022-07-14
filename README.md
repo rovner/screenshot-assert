@@ -137,18 +137,32 @@ screenshotAssert.assertThat(Screenshots.screenshotOfOageArea(20,140,640,120))
     .isEqualToReferenceId("id");
 ```
 
-- Of web element.
+- Of web element (for browsers).
 
 ```java
-WebElement element=webDriver.findElement(cssSelector(".element"));
+WebElement element = webDriver.findElement(cssSelector(".element"));
 screenshotAssert.assertThat(Screenshots.screenshotOfElement(element))
     .isEqualToReferenceId("id");
 ```
 
-- Of web element locatable by selector.
+- Of web element locatable by selector (for browsers).
 
 ```java
 screenshotAssert.assertThat(Screenshots.screenshotOfElementFoundBy(cssSelector(".element")))
+    .isEqualToReferenceId("id");
+```
+- Of native element (for native apps).
+
+```java
+WebElement element = webDriver.findElement(id("id"));
+screenshotAssert.assertThat(Screenshots.screenshotOfNativeElement(element))
+    .isEqualToReferenceId("id");
+```
+
+- Of native element locatable by selector (for native apps).
+
+```java
+screenshotAssert.assertThat(Screenshots.screenshotOfNativeElementFoundBy(id("id")))
     .isEqualToReferenceId("id");
 ```
 
@@ -160,8 +174,8 @@ See all [types](screenshot-assert-core/src/main/java/io/github/rovner/screenshot
 
 ```java
 screenshotAssert.assertThat(screenshotOfViewport())
-    .ignoring(area(10,10,40,50))
-    .ignoring(area(new Rectangle(60,30,10,20))) //pay attention to order of arguments
+    .ignoring(area(10, 10, 40, 50))
+    .ignoring(area(new Rectangle(60, 30, 10, 20))) //pay attention to order of arguments
     .isEqualToReferenceId("id");
 ```
 

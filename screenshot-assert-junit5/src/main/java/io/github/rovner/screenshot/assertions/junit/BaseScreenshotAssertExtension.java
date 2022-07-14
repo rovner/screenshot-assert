@@ -4,7 +4,7 @@ import io.github.rovner.screenshot.assertions.core.*;
 import io.github.rovner.screenshot.assertions.core.allure.AllureListener;
 import io.github.rovner.screenshot.assertions.core.allure.DefaultAllureListener;
 import io.github.rovner.screenshot.assertions.core.cropper.DefaultImageCropper;
-import io.github.rovner.screenshot.assertions.core.cropper.DesktopViewportCropper;
+import io.github.rovner.screenshot.assertions.core.cropper.NoCropViewportCropper;
 import io.github.rovner.screenshot.assertions.core.cropper.ImageCropper;
 import io.github.rovner.screenshot.assertions.core.cropper.ViewportCropper;
 import io.github.rovner.screenshot.assertions.core.diff.DefaultImageDiffer;
@@ -161,7 +161,7 @@ public abstract class BaseScreenshotAssertExtension<T extends BaseScreenshotAsse
 
     /**
      * Sets viewport cropper to be used.
-     * Default: {@link DesktopViewportCropper}
+     * Default: {@link NoCropViewportCropper}
      *
      * @param viewportCropper cropper to use.
      * @return self.

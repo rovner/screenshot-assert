@@ -15,7 +15,7 @@ import java.io.IOException;
 import static io.github.rovner.screenshot.assertions.core.cropper.ViewportCroppers.floatingHeaderCutting;
 import static io.github.rovner.screenshot.assertions.core.ignoring.Ignorings.elementsBy;
 import static io.github.rovner.screenshot.assertions.core.screenshot.Screenshots.*;
-import static io.github.rovner.screenshot.assertions.examples.utils.Drivers.ipad;
+import static io.github.rovner.screenshot.assertions.examples.utils.Drivers.ipadSafari;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 
@@ -30,7 +30,7 @@ public class IpadExamplesTest extends BaseTest {
 
     @BeforeEach
     void beforeEach() throws IOException {
-        wd = ipad();
+        wd = ipadSafari();
     }
 
     @Test
